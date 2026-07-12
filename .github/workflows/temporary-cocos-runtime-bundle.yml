@@ -54,7 +54,8 @@ jobs:
           set -euxo pipefail
           curl --fail --location --retry 3 --retry-delay 10 "$WINE_URL" -o bundle/wine/wine-11.11-staging-amd64-wow64.tar.xz
           echo "$WINE_SHA256  bundle/wine/wine-11.11-staging-amd64-wow64.tar.xz" | sha256sum --check
-          tar -tf bundle/wine/wine-11.11-staging-amd64-wow64.tar.xz | head -200 > bundle/wine/wine-contents.txt
+          tar -tf bundle/wine/wine-11.11-staging-amd64-wow64.tar.xz > bundle/wine/wine-contents-full.txt
+          head -200 bundle/wine/wine-contents-full.txt > bundle/wine/wine-contents.txt
 
       - name: Download any verified Creator candidate
         run: |
