@@ -1,0 +1,488 @@
+{
+  "schema_version": "0.1.0",
+  "status": "draft_heuristic_baseline",
+  "engine_compatibility": "0.1.x",
+  "notes": [
+    "Rules are initial product hypotheses for P0-A prototype testing.",
+    "Rules are not chemical safety rules or production constraints.",
+    "All strengths and thresholds require expert review and regression testing."
+  ],
+  "pair_rules": [
+    {
+      "rule_id": "REL-001",
+      "source": "SB-CA-01",
+      "target": "SB-FL-01",
+      "relation": "synergy",
+      "directional": false,
+      "strength": 0.18,
+      "threshold": 0.05,
+      "affected_metrics": [
+        "freshness",
+        "transparency"
+      ],
+      "description": "明亮柑橘提升清透白花的开场与通透感",
+      "status": "draft"
+    },
+    {
+      "rule_id": "REL-002",
+      "source": "SB-CA-03",
+      "target": "SB-FL-01",
+      "relation": "synergy",
+      "directional": false,
+      "strength": 0.22,
+      "threshold": 0.04,
+      "affected_metrics": [
+        "freshness",
+        "transparency",
+        "softness"
+      ],
+      "description": "水汽空气感与清透白花形成露水般的透明花香",
+      "status": "draft"
+    },
+    {
+      "rule_id": "REL-003",
+      "source": "SB-GH-03",
+      "target": "SB-FL-02",
+      "relation": "synergy",
+      "directional": false,
+      "strength": 0.16,
+      "threshold": 0.05,
+      "affected_metrics": [
+        "softness",
+        "transparency"
+      ],
+      "description": "茶雾为露水玫瑰提供轻涩和留白",
+      "status": "draft"
+    },
+    {
+      "rule_id": "REL-004",
+      "source": "SB-FR-01",
+      "target": "SB-FL-01",
+      "relation": "synergy",
+      "directional": false,
+      "strength": 0.15,
+      "threshold": 0.05,
+      "affected_metrics": [
+        "freshness",
+        "transparency"
+      ],
+      "description": "梨水与白花形成清甜多汁的轻盈主体",
+      "status": "draft"
+    },
+    {
+      "rule_id": "REL-005",
+      "source": "SB-FL-02",
+      "target": "SB-MS-01",
+      "relation": "synergy",
+      "directional": false,
+      "strength": 0.17,
+      "threshold": 0.05,
+      "affected_metrics": [
+        "softness",
+        "longevity"
+      ],
+      "description": "白麝香柔化玫瑰并延长贴肤尾段",
+      "status": "draft"
+    },
+    {
+      "rule_id": "REL-006",
+      "source": "SB-WE-01",
+      "target": "SB-MS-01",
+      "relation": "synergy",
+      "directional": false,
+      "strength": 0.16,
+      "threshold": 0.05,
+      "affected_metrics": [
+        "longevity",
+        "softness"
+      ],
+      "description": "白麝香填充雪松骨架并柔化干燥边缘",
+      "status": "draft"
+    },
+    {
+      "rule_id": "REL-007",
+      "source": "SB-WE-02",
+      "target": "SB-MS-03",
+      "relation": "synergy",
+      "directional": false,
+      "strength": 0.2,
+      "threshold": 0.05,
+      "affected_metrics": [
+        "warmth",
+        "softness",
+        "longevity"
+      ],
+      "description": "檀木与暖肌肤形成柔暖贴肤底色",
+      "status": "draft"
+    },
+    {
+      "rule_id": "REL-008",
+      "source": "SB-AS-03",
+      "target": "SB-WE-01",
+      "relation": "synergy",
+      "directional": false,
+      "strength": 0.18,
+      "threshold": 0.04,
+      "affected_metrics": [
+        "longevity",
+        "weight"
+      ],
+      "description": "干燥木质为焚香烟雾提供稳定骨架",
+      "status": "draft"
+    },
+    {
+      "rule_id": "REL-009",
+      "source": "SB-CA-01",
+      "target": "SB-MS-02",
+      "relation": "synergy",
+      "directional": false,
+      "strength": 0.14,
+      "threshold": 0.05,
+      "affected_metrics": [
+        "freshness",
+        "transparency"
+      ],
+      "description": "柑橘亮光提亮洁净织物的开场",
+      "status": "draft"
+    },
+    {
+      "rule_id": "REL-010",
+      "source": "SB-GH-02",
+      "target": "SB-GO-03",
+      "relation": "synergy",
+      "directional": false,
+      "strength": 0.12,
+      "threshold": 0.04,
+      "affected_metrics": [
+        "softness"
+      ],
+      "description": "清苦草本削弱烘烤美食感的单一甜厚",
+      "status": "draft"
+    },
+    {
+      "rule_id": "REL-011",
+      "source": "SB-GH-03",
+      "target": "SB-WE-01",
+      "relation": "bridge",
+      "directional": false,
+      "strength": 0.22,
+      "threshold": 0.04,
+      "affected_metrics": [
+        "continuity"
+      ],
+      "description": "茶雾连接中段与干燥木质尾段",
+      "status": "draft"
+    },
+    {
+      "rule_id": "REL-012",
+      "source": "SB-FL-03",
+      "target": "SB-WE-01",
+      "relation": "bridge",
+      "directional": false,
+      "strength": 0.18,
+      "threshold": 0.04,
+      "affected_metrics": [
+        "continuity"
+      ],
+      "description": "粉感鸢尾连接花香主体与干燥木质尾段",
+      "status": "draft"
+    },
+    {
+      "rule_id": "REL-013",
+      "source": "SB-MS-02",
+      "target": "SB-MS-01",
+      "relation": "bridge",
+      "directional": false,
+      "strength": 0.24,
+      "threshold": 0.04,
+      "affected_metrics": [
+        "continuity"
+      ],
+      "description": "洗净织物与白麝香贯穿前中后段",
+      "status": "draft"
+    },
+    {
+      "rule_id": "REL-014",
+      "source": "SB-MS-01",
+      "target": "SB-WE-02",
+      "relation": "bridge",
+      "directional": false,
+      "strength": 0.18,
+      "threshold": 0.04,
+      "affected_metrics": [
+        "continuity"
+      ],
+      "description": "白麝香把柔软木质收束到贴肤尾段",
+      "status": "draft"
+    },
+    {
+      "rule_id": "REL-015",
+      "source": "SB-CA-03",
+      "target": "SB-GH-03",
+      "relation": "bridge",
+      "directional": false,
+      "strength": 0.17,
+      "threshold": 0.04,
+      "affected_metrics": [
+        "continuity"
+      ],
+      "description": "透明水汽从开场过渡到安静茶雾",
+      "status": "draft"
+    },
+    {
+      "rule_id": "REL-016",
+      "source": "SB-GO-02",
+      "target": "SB-CA-03",
+      "relation": "masking",
+      "directional": true,
+      "strength": 0.42,
+      "threshold": 0.06,
+      "affected_metrics": [
+        "freshness",
+        "transparency"
+      ],
+      "description": "焦糖高甜厚会遮盖雨后空气的透明水汽",
+      "status": "draft"
+    },
+    {
+      "rule_id": "REL-017",
+      "source": "SB-AS-01",
+      "target": "SB-CA-03",
+      "relation": "masking",
+      "directional": true,
+      "strength": 0.34,
+      "threshold": 0.07,
+      "affected_metrics": [
+        "freshness",
+        "transparency"
+      ],
+      "description": "温暖琥珀过强时压住轻薄空气感",
+      "status": "draft"
+    },
+    {
+      "rule_id": "REL-018",
+      "source": "SB-WE-03",
+      "target": "SB-FL-01",
+      "relation": "masking",
+      "directional": true,
+      "strength": 0.28,
+      "threshold": 0.07,
+      "affected_metrics": [
+        "transparency",
+        "freshness"
+      ],
+      "description": "潮湿苔土会覆盖透明白花的清亮主体",
+      "status": "draft"
+    },
+    {
+      "rule_id": "REL-019",
+      "source": "SB-WE-03",
+      "target": "SB-CA-03",
+      "relation": "masking",
+      "directional": true,
+      "strength": 0.3,
+      "threshold": 0.07,
+      "affected_metrics": [
+        "transparency",
+        "freshness"
+      ],
+      "description": "苔土厚重感会压低空气和水汽表达",
+      "status": "draft"
+    },
+    {
+      "rule_id": "REL-020",
+      "source": "SB-AS-03",
+      "target": "SB-GH-03",
+      "relation": "masking",
+      "directional": true,
+      "strength": 0.25,
+      "threshold": 0.07,
+      "affected_metrics": [
+        "transparency",
+        "softness"
+      ],
+      "description": "烟雾过强会压住茶雾的轻涩留白",
+      "status": "draft"
+    },
+    {
+      "rule_id": "REL-021",
+      "source": "SB-GO-01",
+      "target": "SB-WE-02",
+      "relation": "masking",
+      "directional": true,
+      "strength": 0.18,
+      "threshold": 0.08,
+      "affected_metrics": [
+        "clarity"
+      ],
+      "description": "香草奶感过强时会让檀木主体变得甜腻同质",
+      "status": "draft"
+    },
+    {
+      "rule_id": "REL-022",
+      "source": "SB-GO-02",
+      "target": "SB-FL-02",
+      "relation": "masking",
+      "directional": true,
+      "strength": 0.22,
+      "threshold": 0.07,
+      "affected_metrics": [
+        "softness",
+        "transparency"
+      ],
+      "description": "焦糖会覆盖露水玫瑰的湿润花瓣感",
+      "status": "draft"
+    },
+    {
+      "rule_id": "REL-023",
+      "source": "SB-CA-02",
+      "target": "SB-GO-02",
+      "relation": "conflict",
+      "directional": false,
+      "strength": 0.24,
+      "threshold": 0.05,
+      "affected_metrics": [
+        "clarity",
+        "balance"
+      ],
+      "description": "青涩柑皮与浓焦糖在缺少桥接时容易割裂",
+      "status": "draft"
+    },
+    {
+      "rule_id": "REL-024",
+      "source": "SB-GH-01",
+      "target": "SB-GO-01",
+      "relation": "conflict",
+      "directional": false,
+      "strength": 0.2,
+      "threshold": 0.05,
+      "affected_metrics": [
+        "clarity",
+        "balance"
+      ],
+      "description": "生青叶汁与香草奶感可能产生突兀对比",
+      "status": "draft"
+    },
+    {
+      "rule_id": "REL-025",
+      "source": "SB-FL-03",
+      "target": "SB-GO-01",
+      "relation": "conflict",
+      "directional": false,
+      "strength": 0.16,
+      "threshold": 0.06,
+      "affected_metrics": [
+        "clarity"
+      ],
+      "description": "粉感鸢尾与高香草奶感容易滑向厚重化妆品感",
+      "status": "draft"
+    },
+    {
+      "rule_id": "REL-026",
+      "source": "SB-AS-02",
+      "target": "SB-FR-03",
+      "relation": "conflict",
+      "directional": false,
+      "strength": 0.14,
+      "threshold": 0.05,
+      "affected_metrics": [
+        "softness",
+        "clarity"
+      ],
+      "description": "冷辛香与柔暖核果在比例接近时会争夺主体",
+      "status": "draft"
+    },
+    {
+      "rule_id": "REL-027",
+      "source": "SB-CA-03",
+      "target": "SB-AS-01",
+      "relation": "conflict",
+      "directional": false,
+      "strength": 0.12,
+      "threshold": 0.06,
+      "affected_metrics": [
+        "balance"
+      ],
+      "description": "透明冷空气与暖厚琥珀都很强时形成温度拉扯",
+      "status": "draft"
+    }
+  ],
+  "group_rules": [
+    {
+      "rule_id": "GRP-SWEET-HEAVY-001",
+      "type": "overload",
+      "group": "sweet_heavy",
+      "min_active_components": 2,
+      "combined_effective_share_threshold": 0.48,
+      "conditions": {
+        "sweetness_min": 0.72,
+        "weight_min": 0.62
+      },
+      "effects": {
+        "clarity_delta": -0.1,
+        "complexity_delta": 0.06
+      },
+      "problem_code": "too_sweet_heavy",
+      "description": "多个甜厚积木共同占主导时触发甜厚过载。"
+    },
+    {
+      "rule_id": "GRP-CLEAN-001",
+      "type": "homogeneity",
+      "group": "clean_homogeneity",
+      "min_active_components": 3,
+      "combined_effective_share_threshold": 0.55,
+      "effects": {
+        "clarity_delta": -0.08,
+        "complexity_delta": -0.03
+      },
+      "problem_code": "clean_homogeneity",
+      "description": "透明白花、白麝香和洗净织物同时过强时产生洁净同质化。"
+    },
+    {
+      "rule_id": "GRP-DARK-001",
+      "type": "overload",
+      "group": "dark_heavy",
+      "min_active_components": 2,
+      "combined_effective_share_threshold": 0.5,
+      "conditions": {
+        "weight_min": 0.72,
+        "transparency_max": 0.3
+      },
+      "effects": {
+        "clarity_delta": -0.08,
+        "complexity_delta": 0.05
+      },
+      "problem_code": "dark_heavy_overload",
+      "description": "多个暗重积木共同占主导时压低透明度并增加沉闷风险。"
+    },
+    {
+      "rule_id": "GRP-SHARP-001",
+      "type": "overload",
+      "group": "sharp_overload",
+      "min_active_components": 2,
+      "combined_effective_share_threshold": 0.44,
+      "conditions": {
+        "softness_max": 0.34
+      },
+      "effects": {
+        "clarity_delta": -0.05,
+        "complexity_delta": 0.04
+      },
+      "problem_code": "sharp_opening",
+      "description": "多个锐利积木在开场共同过强时触发尖锐过载。"
+    },
+    {
+      "rule_id": "GRP-ATMOS-001",
+      "type": "overload",
+      "group": "atmosphere_overload",
+      "min_active_components": 2,
+      "combined_effective_share_threshold": 0.45,
+      "effects": {
+        "clarity_delta": -0.12,
+        "complexity_delta": 0.08
+      },
+      "problem_code": "atmosphere_without_subject",
+      "description": "多个氛围积木高占比时可能失去明确主体。"
+    }
+  ]
+}
