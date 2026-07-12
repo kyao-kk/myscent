@@ -1,0 +1,104 @@
+name: temporary-cocos-native-macos-launch
+
+on:
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  native-launch:
+    runs-on: macos-15
+    timeout-minutes: 45
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Create minimal Creator 3.8.8 project
+        run: |
+          set -euxo pipefail
+          project="$RUNNER_TEMP/cocos-native-probe"
+          mkdir -p "$project/assets/scenes" "$RUNNER_TEMP/evidence"
+          cat > "$project/package.json" <<'JSON'
+          {
+            "name": "cocos-native-probe",
+            "version": "0.1.0",
+            "private": true,
+            "uuid": "896a2465-bebd-4947-90a1-12bb876af357",
+            "creator": { "version": "3.8.8" }
+          }
+          JSON
+          printf '%s\n' "$project" > "$RUNNER_TEMP/evidence/project-path.txt"
+          find "$project" -maxdepth 3 -print > "$RUNNER_TEMP/evidence/project-before.txt"
+
+      - name: Download and verify official Creator 3.8.8 macOS package
+        run: |
+          set -euxo pipefail
+          mkdir -p "$RUNNER_TEMP/cocos"
+          url='https://download.cocos.org/CocosCreator/v3.8.8/CocosCreator-v3.8.8-mac-010512.zip'
+          archive="$RUNNER_TEMP/CocosCreator-v3.8.8-mac-010512.zip"
+          curl --fail --location --retry 3 --retry-delay 10 "$url" -o "$archive"
+          shasum -a 256 "$archive" | tee "$RUNNER_TEMP/evidence/creator-mac-sha256.txt"
+          ditto -x -k "$archive" "$RUNNER_TEMP/cocos"
+          app="$(find "$RUNNER_TEMP/cocos" -name CocosCreator.app -type d -print -quit)"
+          test -n "$app"
+          cli="$app/Contents/MacOS/CocosCreator"
+          test -x "$cli"
+          printf '%s\n' "$app" > "$RUNNER_TEMP/evidence/app-path.txt"
+          file "$cli" | tee "$RUNNER_TEMP/evidence/executable-file.txt"
+          codesign -dv --verbose=4 "$app" 2> "$RUNNER_TEMP/evidence/codesign.txt"
+          plutil -p "$app/Contents/Info.plist" > "$RUNNER_TEMP/evidence/info-plist.txt"
+
+      - name: Launch native Creator project and capture runtime
+        id: launch
+        run: |
+          set -euxo pipefail
+          app="$(cat "$RUNNER_TEMP/evidence/app-path.txt")"
+          cli="$app/Contents/MacOS/CocosCreator"
+          project="$(cat "$RUNNER_TEMP/evidence/project-path.txt")"
+          stdout="$RUNNER_TEMP/evidence/creator-stdout.txt"
+          stderr="$RUNNER_TEMP/evidence/creator-stderr.txt"
+          "$cli" --project "$project" >"$stdout" 2>"$stderr" &
+          pid=$!
+          echo "$pid" > "$RUNNER_TEMP/evidence/creator-pid.txt"
+          alive=false
+          for second in $(seq 1 90); do
+            if kill -0 "$pid" 2>/dev/null; then
+              alive=true
+            else
+              break
+            fi
+            if [ -d "$project/library" ] && [ -d "$project/temp" ]; then
+              echo "$second" > "$RUNNER_TEMP/evidence/initialization-seconds.txt"
+              break
+            fi
+            sleep 1
+          done
+          echo "$alive" > "$RUNNER_TEMP/evidence/process-was-alive.txt"
+          ps -ax -o pid,ppid,etime,command | grep -E 'CocosCreator|Cocos Creator' | grep -v grep > "$RUNNER_TEMP/evidence/process-snapshot.txt" || true
+          find "$project" -maxdepth 5 -print | sort > "$RUNNER_TEMP/evidence/project-after.txt"
+          {
+            echo "library=$(test -d "$project/library" && echo true || echo false)"
+            echo "temp=$(test -d "$project/temp" && echo true || echo false)"
+            echo "profiles=$(test -d "$project/profiles" && echo true || echo false)"
+            echo "local=$(test -d "$project/local" && echo true || echo false)"
+            echo "meta_count=$(find "$project/assets" -name '*.meta' | wc -l | tr -d ' ')"
+            echo "process_alive_before_stop=$(kill -0 "$pid" 2>/dev/null && echo true || echo false)"
+          } | tee "$RUNNER_TEMP/evidence/runtime-summary.txt"
+          kill -TERM "$pid" 2>/dev/null || true
+          sleep 5
+          kill -KILL "$pid" 2>/dev/null || true
+          pkill -TERM -f 'CocosCreator Helper' || true
+          pkill -KILL -f 'CocosCreator Helper' || true
+          test -d "$project/library"
+          test -d "$project/temp"
+
+      - name: Upload native launch evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cocos-creator-388-native-macos-launch
+          path: ${{ runner.temp }}/evidence
+          if-no-files-found: error

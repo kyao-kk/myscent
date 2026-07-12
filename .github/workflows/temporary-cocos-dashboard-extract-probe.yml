@@ -1,0 +1,67 @@
+name: temporary-cocos-dashboard-extract-probe
+
+on:
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  extract-dashboard:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download verified official Dashboard
+        run: |
+          set -euxo pipefail
+          mkdir -p "$RUNNER_TEMP/evidence" "$RUNNER_TEMP/nsis" "$RUNNER_TEMP/app"
+          curl --fail --location --retry 3 --retry-delay 10 \
+            https://download.cocos.com/CocosDashboard/v2.2.1/CocosDashboard-v2.2.1-win-112616.exe \
+            -o "$RUNNER_TEMP/CocosDashboard.exe"
+          echo 'f47e0bfc5bccd452361160784c6062b0b30b9933854ebc04346b8322aee3d9aa  '"$RUNNER_TEMP/CocosDashboard.exe" | sha256sum --check
+          file "$RUNNER_TEMP/CocosDashboard.exe" | tee "$RUNNER_TEMP/evidence/installer-file.txt"
+
+      - name: Extract NSIS and nested Electron payload
+        run: |
+          set -euxo pipefail
+          7z x "$RUNNER_TEMP/CocosDashboard.exe" -o"$RUNNER_TEMP/nsis" -y | tee "$RUNNER_TEMP/evidence/nsis-extract.log"
+          find "$RUNNER_TEMP/nsis" -maxdepth 4 -type f -printf '%p %s\n' | sort > "$RUNNER_TEMP/evidence/nsis-files.txt"
+          payload="$(find "$RUNNER_TEMP/nsis" -type f -printf '%s %p\n' | sort -nr | head -1 | cut -d' ' -f2-)"
+          test -n "$payload"
+          printf '%s\n' "$payload" | tee "$RUNNER_TEMP/evidence/selected-payload.txt"
+          7z x "$payload" -o"$RUNNER_TEMP/app" -y | tee "$RUNNER_TEMP/evidence/app-extract.log"
+          find "$RUNNER_TEMP/app" -maxdepth 8 -type f -printf '%p %s\n' | sort > "$RUNNER_TEMP/evidence/app-files.txt"
+          asar="$(find "$RUNNER_TEMP/app" -type f -name app.asar -print -quit)"
+          test -n "$asar"
+          printf '%s\n' "$asar" > "$RUNNER_TEMP/evidence/app-asar-path.txt"
+          sha256sum "$asar" > "$RUNNER_TEMP/evidence/app-asar-sha256.txt"
+
+      - name: Extract app.asar and inspect version/download endpoints
+        run: |
+          set -euxo pipefail
+          asar="$(cat "$RUNNER_TEMP/evidence/app-asar-path.txt")"
+          mkdir -p "$RUNNER_TEMP/asar"
+          npx --yes @electron/asar extract "$asar" "$RUNNER_TEMP/asar"
+          find "$RUNNER_TEMP/asar" -type f -printf '%p %s\n' | sort > "$RUNNER_TEMP/evidence/asar-files.txt"
+          grep -RInE --include='*.js' --include='*.json' --include='*.html' \
+            'download\.cocos|CocosCreator-v|CocosCreator/|3\.8\.8|versionList|engineList|downloadUrl|downloadURL' \
+            "$RUNNER_TEMP/asar" > "$RUNNER_TEMP/evidence/endpoint-matches.txt" || true
+          grep -RhoE --include='*.js' --include='*.json' --include='*.html' \
+            'https?://[^"'"'"'[:space:]<>]+' "$RUNNER_TEMP/asar" | sort -u \
+            > "$RUNNER_TEMP/evidence/all-http-urls.txt" || true
+          grep -Ei 'cocos|creator|version|engine|download' "$RUNNER_TEMP/evidence/all-http-urls.txt" \
+            > "$RUNNER_TEMP/evidence/relevant-http-urls.txt" || true
+          wc -l "$RUNNER_TEMP/evidence/endpoint-matches.txt" "$RUNNER_TEMP/evidence/all-http-urls.txt" "$RUNNER_TEMP/evidence/relevant-http-urls.txt"
+
+      - name: Upload extraction evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cocos-dashboard-extracted-endpoints
+          path: ${{ runner.temp }}/evidence
+          if-no-files-found: error

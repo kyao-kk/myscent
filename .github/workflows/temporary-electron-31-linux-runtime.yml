@@ -1,0 +1,48 @@
+name: temporary-electron-31-linux-runtime
+
+on:
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  fetch-electron:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download and verify Electron 31.3.1 Linux x64
+        run: |
+          set -euxo pipefail
+          mkdir -p "$RUNNER_TEMP/electron" "$RUNNER_TEMP/evidence"
+          base='https://github.com/electron/electron/releases/download/v31.3.1'
+          curl --fail --location --retry 3 --retry-delay 5 "$base/SHASUMS256.txt" -o "$RUNNER_TEMP/evidence/SHASUMS256.txt"
+          curl --fail --location --retry 3 --retry-delay 5 "$base/electron-v31.3.1-linux-x64.zip" -o "$RUNNER_TEMP/electron/electron-v31.3.1-linux-x64.zip"
+          expected="$(awk '$2 ~ /electron-v31.3.1-linux-x64.zip$/ {print $1; exit}' "$RUNNER_TEMP/evidence/SHASUMS256.txt")"
+          test -n "$expected"
+          actual="$(sha256sum "$RUNNER_TEMP/electron/electron-v31.3.1-linux-x64.zip" | awk '{print $1}')"
+          test "$actual" = "$expected"
+          printf '%s  electron-v31.3.1-linux-x64.zip\n' "$actual" > "$RUNNER_TEMP/evidence/electron-linux-x64.sha256"
+          unzip -t "$RUNNER_TEMP/electron/electron-v31.3.1-linux-x64.zip" > "$RUNNER_TEMP/evidence/zip-test.txt"
+          stat -c '%n %s' "$RUNNER_TEMP/electron/electron-v31.3.1-linux-x64.zip" > "$RUNNER_TEMP/evidence/size.txt"
+
+      - name: Upload Electron runtime
+        uses: actions/upload-artifact@v4
+        with:
+          name: electron-31-3-1-linux-x64
+          path: ${{ runner.temp }}/electron/electron-v31.3.1-linux-x64.zip
+          compression-level: 0
+          if-no-files-found: error
+
+      - name: Upload verification evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: electron-31-3-1-linux-x64-evidence
+          path: ${{ runner.temp }}/evidence
+          compression-level: 0
+          if-no-files-found: error
