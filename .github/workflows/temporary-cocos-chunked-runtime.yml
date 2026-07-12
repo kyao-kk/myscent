@@ -1,0 +1,125 @@
+name: temporary-cocos-chunked-runtime
+
+on:
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  chunk-runtime:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Resolve and download Creator 3.8.8 Windows package
+        run: |
+          set -euxo pipefail
+          mkdir -p "$RUNNER_TEMP/runtime/creator" "$RUNNER_TEMP/runtime/meta" "$RUNNER_TEMP/runtime/wine" "$RUNNER_TEMP/runtime/dashboard"
+          cat > "$RUNNER_TEMP/runtime/meta/candidates.txt" <<'EOF'
+          https://download.cocos.org/CocosCreator/v3.8.8/CocosCreator-v3.8.8-win-121518.zip
+          https://download.cocos.org/CocosCreator/v3.8.8/CocosCreator-v3.8.8-win-121518.exe
+          https://download.cocos.com/CocosCreator/v3.8.8/CocosCreator-v3.8.8-win-121518.zip
+          https://download.cocos.com/CocosCreator/v3.8.8/CocosCreator-v3.8.8-win-121518.exe
+          https://download.cocos.org/CocosCreator/v3.8.8/CocosCreator-v3.8.8-win-010512.zip
+          https://download.cocos.org/CocosCreator/v3.8.8/CocosCreator-v3.8.8-win-010512.exe
+          EOF
+          : > "$RUNNER_TEMP/runtime/meta/http-status.txt"
+          selected=''
+          while IFS= read -r url; do
+            code="$(curl --location --silent --show-error --output /dev/null --connect-timeout 20 --max-time 90 --write-out '%{http_code}' "$url" || true)"
+            printf '%s %s\n' "$code" "$url" | tee -a "$RUNNER_TEMP/runtime/meta/http-status.txt"
+            if [ -z "$selected" ] && [ "$code" = '200' ]; then selected="$url"; fi
+          done < "$RUNNER_TEMP/runtime/meta/candidates.txt"
+          test -n "$selected"
+          printf '%s\n' "$selected" | tee "$RUNNER_TEMP/runtime/meta/creator-source-url.txt"
+          name="${selected##*/}"
+          curl --fail --location --retry 3 --retry-delay 10 "$selected" -o "$RUNNER_TEMP/runtime/creator/$name"
+          sha256sum "$RUNNER_TEMP/runtime/creator/$name" | tee "$RUNNER_TEMP/runtime/meta/creator-sha256.txt"
+          stat -c '%n %s' "$RUNNER_TEMP/runtime/creator/$name" | tee "$RUNNER_TEMP/runtime/meta/creator-size.txt"
+          file "$RUNNER_TEMP/runtime/creator/$name" | tee "$RUNNER_TEMP/runtime/meta/creator-file.txt"
+          if [[ "$name" == *.zip ]]; then unzip -t "$RUNNER_TEMP/runtime/creator/$name" > "$RUNNER_TEMP/runtime/meta/creator-zip-test.txt"; fi
+          split -b 300000000 -d -a 2 "$RUNNER_TEMP/runtime/creator/$name" "$RUNNER_TEMP/runtime/creator/creator.part-"
+          sha256sum "$RUNNER_TEMP/runtime/creator/creator.part-"* > "$RUNNER_TEMP/runtime/meta/creator-parts-sha256.txt"
+          stat -c '%n %s' "$RUNNER_TEMP/runtime/creator/creator.part-"* > "$RUNNER_TEMP/runtime/meta/creator-parts-size.txt"
+          rm "$RUNNER_TEMP/runtime/creator/$name"
+
+      - name: Download verified portable Wine
+        run: |
+          set -euxo pipefail
+          url='https://github.com/Kron4ek/Wine-Builds/releases/download/11.11/wine-11.11-staging-amd64-wow64.tar.xz'
+          file="$RUNNER_TEMP/runtime/wine/wine-11.11-staging-amd64-wow64.tar.xz"
+          curl --fail --location --retry 3 --retry-delay 10 "$url" -o "$file"
+          echo 'bf9ba91bccd3129bd8dee31dcff76e94b38898cee70b9ecf4dda4c0d8d9df25a  '"$file" | sha256sum --check
+          sha256sum "$file" > "$RUNNER_TEMP/runtime/meta/wine-sha256.txt"
+          stat -c '%n %s' "$file" > "$RUNNER_TEMP/runtime/meta/wine-size.txt"
+
+      - name: Download verified Dashboard
+        run: |
+          set -euxo pipefail
+          url='https://download.cocos.com/CocosDashboard/v2.2.1/CocosDashboard-v2.2.1-win-112616.exe'
+          file="$RUNNER_TEMP/runtime/dashboard/CocosDashboard-v2.2.1-win-112616.exe"
+          curl --fail --location --retry 3 --retry-delay 10 "$url" -o "$file"
+          echo 'f47e0bfc5bccd452361160784c6062b0b30b9933854ebc04346b8322aee3d9aa  '"$file" | sha256sum --check
+          sha256sum "$file" > "$RUNNER_TEMP/runtime/meta/dashboard-sha256.txt"
+          stat -c '%n %s' "$file" > "$RUNNER_TEMP/runtime/meta/dashboard-size.txt"
+
+      - name: Upload metadata
+        uses: actions/upload-artifact@v4
+        with:
+          name: cocos-runtime-metadata
+          path: ${{ runner.temp }}/runtime/meta
+          compression-level: 0
+          if-no-files-found: error
+
+      - name: Upload Creator part 00
+        uses: actions/upload-artifact@v4
+        with:
+          name: cocos-creator-part-00
+          path: ${{ runner.temp }}/runtime/creator/creator.part-00
+          compression-level: 0
+          if-no-files-found: error
+
+      - name: Upload Creator part 01
+        uses: actions/upload-artifact@v4
+        with:
+          name: cocos-creator-part-01
+          path: ${{ runner.temp }}/runtime/creator/creator.part-01
+          compression-level: 0
+          if-no-files-found: error
+
+      - name: Upload Creator part 02
+        uses: actions/upload-artifact@v4
+        with:
+          name: cocos-creator-part-02
+          path: ${{ runner.temp }}/runtime/creator/creator.part-02
+          compression-level: 0
+          if-no-files-found: warn
+
+      - name: Upload Creator part 03
+        uses: actions/upload-artifact@v4
+        with:
+          name: cocos-creator-part-03
+          path: ${{ runner.temp }}/runtime/creator/creator.part-03
+          compression-level: 0
+          if-no-files-found: warn
+
+      - name: Upload Wine
+        uses: actions/upload-artifact@v4
+        with:
+          name: portable-wine-11-11
+          path: ${{ runner.temp }}/runtime/wine/wine-11.11-staging-amd64-wow64.tar.xz
+          compression-level: 0
+          if-no-files-found: error
+
+      - name: Upload Dashboard
+        uses: actions/upload-artifact@v4
+        with:
+          name: cocos-dashboard-2-2-1
+          path: ${{ runner.temp }}/runtime/dashboard/CocosDashboard-v2.2.1-win-112616.exe
+          compression-level: 0
+          if-no-files-found: error
