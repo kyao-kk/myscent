@@ -1,0 +1,101 @@
+name: temporary-cocos-dashboard-windows-probe
+
+on:
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  inspect-dashboard:
+    runs-on: windows-2025
+    timeout-minutes: 45
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download and verify official Dashboard
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          New-Item -ItemType Directory -Force -Path "$env:RUNNER_TEMP/evidence" | Out-Null
+          $url = 'https://download.cocos.com/CocosDashboard/v2.2.1/CocosDashboard-v2.2.1-win-112616.exe'
+          $installer = "$env:RUNNER_TEMP/CocosDashboard-v2.2.1-win-112616.exe"
+          Invoke-WebRequest -Uri $url -OutFile $installer
+          $hash = (Get-FileHash -Algorithm SHA256 $installer).Hash.ToLowerInvariant()
+          $hash | Set-Content "$env:RUNNER_TEMP/evidence/installer-sha256.txt"
+          if ($hash -ne 'f47e0bfc5bccd452361160784c6062b0b30b9933854ebc04346b8322aee3d9aa') { throw "Dashboard hash mismatch: $hash" }
+          (Get-Item $installer | Select-Object FullName, Length, VersionInfo | Format-List | Out-String) | Set-Content "$env:RUNNER_TEMP/evidence/installer-info.txt"
+
+      - name: Install Dashboard silently
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $installer = "$env:RUNNER_TEMP/CocosDashboard-v2.2.1-win-112616.exe"
+          $process = Start-Process -FilePath $installer -ArgumentList '/S' -PassThru -Wait
+          $process.ExitCode | Set-Content "$env:RUNNER_TEMP/evidence/install-exit-code.txt"
+          if ($process.ExitCode -ne 0) { throw "Dashboard installer exited $($process.ExitCode)" }
+          $candidates = @(
+            "$env:LOCALAPPDATA/Programs/CocosDashboard/CocosDashboard.exe",
+            "$env:LOCALAPPDATA/Programs/cocos-dashboard/CocosDashboard.exe",
+            "$env:ProgramFiles/CocosDashboard/CocosDashboard.exe",
+            "$env:ProgramFiles/Cocos Dashboard/CocosDashboard.exe"
+          )
+          $exe = $candidates | Where-Object { Test-Path $_ } | Select-Object -First 1
+          if (-not $exe) {
+            $exe = Get-ChildItem -Path $env:LOCALAPPDATA,$env:ProgramFiles -Filter CocosDashboard.exe -File -Recurse -ErrorAction SilentlyContinue | Select-Object -ExpandProperty FullName -First 1
+          }
+          if (-not $exe) { throw 'CocosDashboard.exe was not found after installation.' }
+          $exe | Set-Content "$env:RUNNER_TEMP/evidence/dashboard-exe-path.txt"
+          (Get-Item $exe | Select-Object FullName, Length, VersionInfo | Format-List | Out-String) | Set-Content "$env:RUNNER_TEMP/evidence/dashboard-exe-info.txt"
+
+      - name: Launch real Dashboard executable
+        id: launch
+        continue-on-error: true
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Continue'
+          $exe = Get-Content "$env:RUNNER_TEMP/evidence/dashboard-exe-path.txt"
+          $stdout = "$env:RUNNER_TEMP/evidence/dashboard-stdout.txt"
+          $stderr = "$env:RUNNER_TEMP/evidence/dashboard-stderr.txt"
+          $process = Start-Process -FilePath $exe -ArgumentList '--version' -RedirectStandardOutput $stdout -RedirectStandardError $stderr -PassThru
+          Start-Sleep -Seconds 20
+          if (-not $process.HasExited) {
+            Stop-Process -Id $process.Id -Force
+            'terminated-after-20s-gui-process-was-running' | Set-Content "$env:RUNNER_TEMP/evidence/dashboard-launch-result.txt"
+          } else {
+            "exit-code=$($process.ExitCode)" | Set-Content "$env:RUNNER_TEMP/evidence/dashboard-launch-result.txt"
+          }
+          Get-Process | Where-Object { $_.ProcessName -match 'Cocos|Dashboard' } | Select-Object ProcessName,Id,Path | Format-Table | Out-String | Set-Content "$env:RUNNER_TEMP/evidence/dashboard-processes.txt"
+
+      - name: Extract Dashboard application and discover official endpoints
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $exe = Get-Content "$env:RUNNER_TEMP/evidence/dashboard-exe-path.txt"
+          $root = Split-Path -Parent $exe
+          $asar = Join-Path $root 'resources/app.asar'
+          if (-not (Test-Path $asar)) { throw "app.asar missing: $asar" }
+          $asar | Set-Content "$env:RUNNER_TEMP/evidence/app-asar-path.txt"
+          (Get-FileHash -Algorithm SHA256 $asar).Hash.ToLowerInvariant() | Set-Content "$env:RUNNER_TEMP/evidence/app-asar-sha256.txt"
+          $extract = "$env:RUNNER_TEMP/dashboard-asar"
+          npx --yes @electron/asar extract $asar $extract
+          Get-ChildItem -Path $extract -File -Recurse | Select-Object FullName,Length | Export-Csv -NoTypeInformation "$env:RUNNER_TEMP/evidence/asar-files.csv"
+          $patterns = @('download.cocos','download.cocos.org','CocosCreator-v','CocosCreator/','3.8.8','versionList','engineList','downloadUrl','downloadURL')
+          $matches = foreach ($pattern in $patterns) {
+            Get-ChildItem -Path $extract -File -Recurse -Include *.js,*.json,*.html,*.ts | Select-String -Pattern $pattern -SimpleMatch -ErrorAction SilentlyContinue | Select-Object Path,LineNumber,Line
+          }
+          $matches | Sort-Object Path,LineNumber -Unique | Select-Object -First 5000 | Export-Csv -NoTypeInformation "$env:RUNNER_TEMP/evidence/endpoint-matches.csv"
+          Get-ChildItem -Path $extract -File -Recurse -Include *.js,*.json | ForEach-Object {
+            Select-String -Path $_.FullName -Pattern 'https?://[^"''\s<>]+' -AllMatches -ErrorAction SilentlyContinue | ForEach-Object { $_.Matches.Value }
+          } | Sort-Object -Unique | Set-Content "$env:RUNNER_TEMP/evidence/all-http-urls.txt"
+
+      - name: Upload Dashboard evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cocos-dashboard-windows-runtime-evidence
+          path: ${{ runner.temp }}/evidence
+          if-no-files-found: error
