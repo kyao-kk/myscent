@@ -1,0 +1,799 @@
+{
+  "schema_version": "0.1.0",
+  "status": "draft_heuristic_baseline",
+  "engine_compatibility": "0.1.x",
+  "notes": [
+    "All numeric values are initial heuristic parameters for P0-A prototype testing.",
+    "Values do not represent professional perfumery measurements or production formulas.",
+    "Any change requires a new block library version and regression test."
+  ],
+  "blocks": [
+    {
+      "id": "SB-CA-01",
+      "display_name": "佛手柑亮光",
+      "family": "citrus_air",
+      "attribute_vector": {
+        "sweetness": 0.22,
+        "freshness": 0.9,
+        "warmth": 0.32,
+        "weight": 0.16,
+        "softness": 0.42,
+        "transparency": 0.82,
+        "diffusion": 0.72,
+        "longevity": 0.22
+      },
+      "intensity": 0.78,
+      "stage_weights": {
+        "top": 0.82,
+        "heart": 0.16,
+        "base": 0.02
+      },
+      "role_tags": [
+        "opening",
+        "brightener",
+        "lift"
+      ],
+      "data_quality": 0.86,
+      "real_material_direction": "佛手柑精油、柑橘型天然或合成香材及清亮柑橘香基",
+      "overload_groups": [
+        "sharp_overload"
+      ],
+      "production_mapping_status": "unverified"
+    },
+    {
+      "id": "SB-CA-02",
+      "display_name": "青柑皮",
+      "family": "citrus_air",
+      "attribute_vector": {
+        "sweetness": 0.16,
+        "freshness": 0.92,
+        "warmth": 0.22,
+        "weight": 0.14,
+        "softness": 0.28,
+        "transparency": 0.76,
+        "diffusion": 0.68,
+        "longevity": 0.18
+      },
+      "intensity": 0.82,
+      "stage_weights": {
+        "top": 0.86,
+        "heart": 0.13,
+        "base": 0.01
+      },
+      "role_tags": [
+        "opening",
+        "green",
+        "sharp"
+      ],
+      "data_quality": 0.82,
+      "real_material_direction": "青柑、橘皮、苦橙叶方向的柑橘与绿色香材",
+      "overload_groups": [
+        "sharp_overload"
+      ],
+      "production_mapping_status": "unverified"
+    },
+    {
+      "id": "SB-CA-03",
+      "display_name": "雨后空气",
+      "family": "citrus_air",
+      "attribute_vector": {
+        "sweetness": 0.06,
+        "freshness": 0.96,
+        "warmth": 0.1,
+        "weight": 0.08,
+        "softness": 0.56,
+        "transparency": 0.98,
+        "diffusion": 0.66,
+        "longevity": 0.16
+      },
+      "intensity": 0.66,
+      "stage_weights": {
+        "top": 0.72,
+        "heart": 0.24,
+        "base": 0.04
+      },
+      "role_tags": [
+        "atmosphere",
+        "opening",
+        "water",
+        "air"
+      ],
+      "data_quality": 0.68,
+      "real_material_direction": "臭氧、水生、湿润空气、轻绿叶与透明扩散型复合香基",
+      "overload_groups": [
+        "atmosphere_overload"
+      ],
+      "production_mapping_status": "unverified"
+    },
+    {
+      "id": "SB-GH-01",
+      "display_name": "揉碎绿叶",
+      "family": "green_herbal_tea",
+      "attribute_vector": {
+        "sweetness": 0.05,
+        "freshness": 0.86,
+        "warmth": 0.18,
+        "weight": 0.24,
+        "softness": 0.24,
+        "transparency": 0.6,
+        "diffusion": 0.58,
+        "longevity": 0.3
+      },
+      "intensity": 0.88,
+      "stage_weights": {
+        "top": 0.58,
+        "heart": 0.38,
+        "base": 0.04
+      },
+      "role_tags": [
+        "green",
+        "opening",
+        "heart",
+        "contrast"
+      ],
+      "data_quality": 0.83,
+      "real_material_direction": "绿叶、青草、茎叶汁液和青苦感香材或复合香基",
+      "overload_groups": [
+        "sharp_overload"
+      ],
+      "production_mapping_status": "unverified"
+    },
+    {
+      "id": "SB-GH-02",
+      "display_name": "清苦香草",
+      "family": "green_herbal_tea",
+      "attribute_vector": {
+        "sweetness": 0.03,
+        "freshness": 0.62,
+        "warmth": 0.3,
+        "weight": 0.34,
+        "softness": 0.2,
+        "transparency": 0.48,
+        "diffusion": 0.46,
+        "longevity": 0.42
+      },
+      "intensity": 0.84,
+      "stage_weights": {
+        "top": 0.34,
+        "heart": 0.56,
+        "base": 0.1
+      },
+      "role_tags": [
+        "herbal",
+        "bitter",
+        "heart",
+        "corrective"
+      ],
+      "data_quality": 0.78,
+      "real_material_direction": "芳香草本、干燥药草、清苦绿色与轻辛香方向香材",
+      "overload_groups": [],
+      "production_mapping_status": "unverified"
+    },
+    {
+      "id": "SB-GH-03",
+      "display_name": "茶雾",
+      "family": "green_herbal_tea",
+      "attribute_vector": {
+        "sweetness": 0.18,
+        "freshness": 0.54,
+        "warmth": 0.46,
+        "weight": 0.3,
+        "softness": 0.68,
+        "transparency": 0.72,
+        "diffusion": 0.38,
+        "longevity": 0.42
+      },
+      "intensity": 0.68,
+      "stage_weights": {
+        "top": 0.18,
+        "heart": 0.68,
+        "base": 0.14
+      },
+      "role_tags": [
+        "tea",
+        "heart",
+        "bridge",
+        "quiet"
+      ],
+      "data_quality": 0.76,
+      "real_material_direction": "茶叶、轻涩、蒸汽感和透明木质或花香桥接香基",
+      "overload_groups": [],
+      "production_mapping_status": "unverified"
+    },
+    {
+      "id": "SB-FL-01",
+      "display_name": "透明白花",
+      "family": "floral",
+      "attribute_vector": {
+        "sweetness": 0.34,
+        "freshness": 0.62,
+        "warmth": 0.46,
+        "weight": 0.28,
+        "softness": 0.78,
+        "transparency": 0.82,
+        "diffusion": 0.58,
+        "longevity": 0.44
+      },
+      "intensity": 0.74,
+      "stage_weights": {
+        "top": 0.1,
+        "heart": 0.78,
+        "base": 0.12
+      },
+      "role_tags": [
+        "floral",
+        "heart",
+        "clean",
+        "luminous"
+      ],
+      "data_quality": 0.8,
+      "real_material_direction": "茉莉、橙花、铃兰等清透白花方向香材与复合花香基",
+      "overload_groups": [
+        "clean_homogeneity"
+      ],
+      "production_mapping_status": "unverified"
+    },
+    {
+      "id": "SB-FL-02",
+      "display_name": "露水玫瑰",
+      "family": "floral",
+      "attribute_vector": {
+        "sweetness": 0.46,
+        "freshness": 0.58,
+        "warmth": 0.42,
+        "weight": 0.34,
+        "softness": 0.74,
+        "transparency": 0.7,
+        "diffusion": 0.56,
+        "longevity": 0.52
+      },
+      "intensity": 0.78,
+      "stage_weights": {
+        "top": 0.12,
+        "heart": 0.76,
+        "base": 0.12
+      },
+      "role_tags": [
+        "floral",
+        "heart",
+        "dewy",
+        "romantic"
+      ],
+      "data_quality": 0.84,
+      "real_material_direction": "玫瑰精油、玫瑰原精或清透玫瑰型复合香基",
+      "overload_groups": [],
+      "production_mapping_status": "unverified"
+    },
+    {
+      "id": "SB-FL-03",
+      "display_name": "粉感鸢尾",
+      "family": "floral",
+      "attribute_vector": {
+        "sweetness": 0.24,
+        "freshness": 0.3,
+        "warmth": 0.26,
+        "weight": 0.5,
+        "softness": 0.72,
+        "transparency": 0.42,
+        "diffusion": 0.4,
+        "longevity": 0.66
+      },
+      "intensity": 0.8,
+      "stage_weights": {
+        "top": 0.04,
+        "heart": 0.58,
+        "base": 0.38
+      },
+      "role_tags": [
+        "floral",
+        "powdery",
+        "heart",
+        "base",
+        "dry"
+      ],
+      "data_quality": 0.79,
+      "real_material_direction": "鸢尾、紫罗兰、粉感木质和冷淡花根方向香材",
+      "overload_groups": [],
+      "production_mapping_status": "unverified"
+    },
+    {
+      "id": "SB-FR-01",
+      "display_name": "清脆梨水",
+      "family": "fruity",
+      "attribute_vector": {
+        "sweetness": 0.48,
+        "freshness": 0.8,
+        "warmth": 0.32,
+        "weight": 0.18,
+        "softness": 0.66,
+        "transparency": 0.82,
+        "diffusion": 0.56,
+        "longevity": 0.26
+      },
+      "intensity": 0.72,
+      "stage_weights": {
+        "top": 0.52,
+        "heart": 0.44,
+        "base": 0.04
+      },
+      "role_tags": [
+        "fruity",
+        "juicy",
+        "opening",
+        "heart"
+      ],
+      "data_quality": 0.75,
+      "real_material_direction": "梨、清甜水生果香和透明多汁型复合香基",
+      "overload_groups": [],
+      "production_mapping_status": "unverified"
+    },
+    {
+      "id": "SB-FR-02",
+      "display_name": "深色莓果",
+      "family": "fruity",
+      "attribute_vector": {
+        "sweetness": 0.68,
+        "freshness": 0.44,
+        "warmth": 0.52,
+        "weight": 0.58,
+        "softness": 0.5,
+        "transparency": 0.34,
+        "diffusion": 0.64,
+        "longevity": 0.48
+      },
+      "intensity": 0.92,
+      "stage_weights": {
+        "top": 0.4,
+        "heart": 0.52,
+        "base": 0.08
+      },
+      "role_tags": [
+        "fruity",
+        "dark",
+        "dramatic",
+        "heart"
+      ],
+      "data_quality": 0.74,
+      "real_material_direction": "黑加仑、黑莓、覆盆子等深色浆果型香材与复合果香基",
+      "overload_groups": [
+        "sweet_heavy"
+      ],
+      "production_mapping_status": "unverified"
+    },
+    {
+      "id": "SB-FR-03",
+      "display_name": "柔软核果",
+      "family": "fruity",
+      "attribute_vector": {
+        "sweetness": 0.7,
+        "freshness": 0.42,
+        "warmth": 0.64,
+        "weight": 0.46,
+        "softness": 0.84,
+        "transparency": 0.44,
+        "diffusion": 0.46,
+        "longevity": 0.42
+      },
+      "intensity": 0.76,
+      "stage_weights": {
+        "top": 0.18,
+        "heart": 0.7,
+        "base": 0.12
+      },
+      "role_tags": [
+        "fruity",
+        "soft",
+        "skin",
+        "heart"
+      ],
+      "data_quality": 0.72,
+      "real_material_direction": "桃、杏、李子等核果型香材及柔软果肉复合香基",
+      "overload_groups": [
+        "sweet_heavy"
+      ],
+      "production_mapping_status": "unverified"
+    },
+    {
+      "id": "SB-GO-01",
+      "display_name": "香草奶感",
+      "family": "gourmand",
+      "attribute_vector": {
+        "sweetness": 0.92,
+        "freshness": 0.08,
+        "warmth": 0.84,
+        "weight": 0.72,
+        "softness": 0.92,
+        "transparency": 0.18,
+        "diffusion": 0.52,
+        "longevity": 0.88
+      },
+      "intensity": 0.96,
+      "stage_weights": {
+        "top": 0.02,
+        "heart": 0.2,
+        "base": 0.78
+      },
+      "role_tags": [
+        "gourmand",
+        "base",
+        "soft",
+        "comfort"
+      ],
+      "data_quality": 0.86,
+      "real_material_direction": "香草、香兰素、奶油和柔软甜香方向香材或复合香基",
+      "overload_groups": [
+        "sweet_heavy"
+      ],
+      "production_mapping_status": "unverified"
+    },
+    {
+      "id": "SB-GO-02",
+      "display_name": "焦糖糖衣",
+      "family": "gourmand",
+      "attribute_vector": {
+        "sweetness": 0.98,
+        "freshness": 0.04,
+        "warmth": 0.88,
+        "weight": 0.88,
+        "softness": 0.52,
+        "transparency": 0.1,
+        "diffusion": 0.72,
+        "longevity": 0.8
+      },
+      "intensity": 1.1,
+      "stage_weights": {
+        "top": 0.04,
+        "heart": 0.46,
+        "base": 0.5
+      },
+      "role_tags": [
+        "gourmand",
+        "dramatic",
+        "heart",
+        "base"
+      ],
+      "data_quality": 0.81,
+      "real_material_direction": "焦糖、熔糖、烘烤糖和高甜美食型复合香基",
+      "overload_groups": [
+        "sweet_heavy"
+      ],
+      "production_mapping_status": "unverified"
+    },
+    {
+      "id": "SB-GO-03",
+      "display_name": "可可咖啡",
+      "family": "gourmand",
+      "attribute_vector": {
+        "sweetness": 0.52,
+        "freshness": 0.12,
+        "warmth": 0.76,
+        "weight": 0.82,
+        "softness": 0.44,
+        "transparency": 0.18,
+        "diffusion": 0.58,
+        "longevity": 0.74
+      },
+      "intensity": 0.98,
+      "stage_weights": {
+        "top": 0.04,
+        "heart": 0.48,
+        "base": 0.48
+      },
+      "role_tags": [
+        "gourmand",
+        "roasted",
+        "dark",
+        "heart",
+        "base"
+      ],
+      "data_quality": 0.8,
+      "real_material_direction": "咖啡、可可、烘烤、深色粉末与微苦美食型香基",
+      "overload_groups": [
+        "dark_heavy"
+      ],
+      "production_mapping_status": "unverified"
+    },
+    {
+      "id": "SB-WE-01",
+      "display_name": "干燥雪松",
+      "family": "woody_earth",
+      "attribute_vector": {
+        "sweetness": 0.08,
+        "freshness": 0.34,
+        "warmth": 0.44,
+        "weight": 0.54,
+        "softness": 0.3,
+        "transparency": 0.48,
+        "diffusion": 0.46,
+        "longevity": 0.78
+      },
+      "intensity": 0.88,
+      "stage_weights": {
+        "top": 0.02,
+        "heart": 0.24,
+        "base": 0.74
+      },
+      "role_tags": [
+        "woody",
+        "base",
+        "structure",
+        "dry"
+      ],
+      "data_quality": 0.88,
+      "real_material_direction": "雪松木精油、干燥木质和铅笔屑感木质香材",
+      "overload_groups": [
+        "sharp_overload"
+      ],
+      "production_mapping_status": "unverified"
+    },
+    {
+      "id": "SB-WE-02",
+      "display_name": "奶感檀木",
+      "family": "woody_earth",
+      "attribute_vector": {
+        "sweetness": 0.28,
+        "freshness": 0.18,
+        "warmth": 0.78,
+        "weight": 0.66,
+        "softness": 0.9,
+        "transparency": 0.3,
+        "diffusion": 0.4,
+        "longevity": 0.86
+      },
+      "intensity": 0.84,
+      "stage_weights": {
+        "top": 0.01,
+        "heart": 0.2,
+        "base": 0.79
+      },
+      "role_tags": [
+        "woody",
+        "base",
+        "soft",
+        "creamy"
+      ],
+      "data_quality": 0.83,
+      "real_material_direction": "檀木、柔滑木质、奶感木质和温暖木香复合香基",
+      "overload_groups": [
+        "sweet_heavy"
+      ],
+      "production_mapping_status": "unverified"
+    },
+    {
+      "id": "SB-WE-03",
+      "display_name": "潮湿苔土",
+      "family": "woody_earth",
+      "attribute_vector": {
+        "sweetness": 0.04,
+        "freshness": 0.28,
+        "warmth": 0.16,
+        "weight": 0.86,
+        "softness": 0.4,
+        "transparency": 0.16,
+        "diffusion": 0.5,
+        "longevity": 0.82
+      },
+      "intensity": 0.94,
+      "stage_weights": {
+        "top": 0.02,
+        "heart": 0.24,
+        "base": 0.74
+      },
+      "role_tags": [
+        "earth",
+        "moss",
+        "base",
+        "atmosphere",
+        "dark"
+      ],
+      "data_quality": 0.66,
+      "real_material_direction": "苔藓、湿土、根系、潮湿木质和阴影感复合香基",
+      "overload_groups": [
+        "dark_heavy",
+        "atmosphere_overload"
+      ],
+      "production_mapping_status": "unverified"
+    },
+    {
+      "id": "SB-AS-01",
+      "display_name": "温暖琥珀",
+      "family": "amber_spice_smoke",
+      "attribute_vector": {
+        "sweetness": 0.72,
+        "freshness": 0.1,
+        "warmth": 0.94,
+        "weight": 0.86,
+        "softness": 0.74,
+        "transparency": 0.16,
+        "diffusion": 0.66,
+        "longevity": 0.92
+      },
+      "intensity": 1.02,
+      "stage_weights": {
+        "top": 0.01,
+        "heart": 0.18,
+        "base": 0.81
+      },
+      "role_tags": [
+        "amber",
+        "base",
+        "warm",
+        "resinous"
+      ],
+      "data_quality": 0.84,
+      "real_material_direction": "树脂、香脂、琥珀感和温暖包裹型复合香基",
+      "overload_groups": [
+        "sweet_heavy",
+        "dark_heavy"
+      ],
+      "production_mapping_status": "unverified"
+    },
+    {
+      "id": "SB-AS-02",
+      "display_name": "冷辛香",
+      "family": "amber_spice_smoke",
+      "attribute_vector": {
+        "sweetness": 0.06,
+        "freshness": 0.66,
+        "warmth": 0.18,
+        "weight": 0.38,
+        "softness": 0.16,
+        "transparency": 0.54,
+        "diffusion": 0.7,
+        "longevity": 0.46
+      },
+      "intensity": 1.0,
+      "stage_weights": {
+        "top": 0.52,
+        "heart": 0.42,
+        "base": 0.06
+      },
+      "role_tags": [
+        "spice",
+        "cold",
+        "sharp",
+        "opening",
+        "heart"
+      ],
+      "data_quality": 0.77,
+      "real_material_direction": "冷感辛香、胡椒、金属感与清醒型辛香香材",
+      "overload_groups": [
+        "sharp_overload"
+      ],
+      "production_mapping_status": "unverified"
+    },
+    {
+      "id": "SB-AS-03",
+      "display_name": "焚香烟雾",
+      "family": "amber_spice_smoke",
+      "attribute_vector": {
+        "sweetness": 0.1,
+        "freshness": 0.12,
+        "warmth": 0.58,
+        "weight": 0.76,
+        "softness": 0.5,
+        "transparency": 0.26,
+        "diffusion": 0.68,
+        "longevity": 0.84
+      },
+      "intensity": 0.96,
+      "stage_weights": {
+        "top": 0.02,
+        "heart": 0.44,
+        "base": 0.54
+      },
+      "role_tags": [
+        "smoke",
+        "incense",
+        "heart",
+        "base",
+        "atmosphere"
+      ],
+      "data_quality": 0.76,
+      "real_material_direction": "乳香、没药、烟熏木质、灰烬和焚香型复合香基",
+      "overload_groups": [
+        "dark_heavy",
+        "atmosphere_overload"
+      ],
+      "production_mapping_status": "unverified"
+    },
+    {
+      "id": "SB-MS-01",
+      "display_name": "白麝香",
+      "family": "musk_clean_skin",
+      "attribute_vector": {
+        "sweetness": 0.16,
+        "freshness": 0.34,
+        "warmth": 0.56,
+        "weight": 0.42,
+        "softness": 0.92,
+        "transparency": 0.58,
+        "diffusion": 0.38,
+        "longevity": 0.84
+      },
+      "intensity": 0.72,
+      "stage_weights": {
+        "top": 0.02,
+        "heart": 0.18,
+        "base": 0.8
+      },
+      "role_tags": [
+        "musk",
+        "base",
+        "soft",
+        "binder",
+        "clean"
+      ],
+      "data_quality": 0.88,
+      "real_material_direction": "白麝香、干净麝香和柔软肌肤底色方向合成香材或复合香基",
+      "overload_groups": [
+        "clean_homogeneity"
+      ],
+      "production_mapping_status": "unverified"
+    },
+    {
+      "id": "SB-MS-02",
+      "display_name": "洗净织物",
+      "family": "musk_clean_skin",
+      "attribute_vector": {
+        "sweetness": 0.18,
+        "freshness": 0.74,
+        "warmth": 0.46,
+        "weight": 0.24,
+        "softness": 0.8,
+        "transparency": 0.76,
+        "diffusion": 0.48,
+        "longevity": 0.58
+      },
+      "intensity": 0.7,
+      "stage_weights": {
+        "top": 0.28,
+        "heart": 0.44,
+        "base": 0.28
+      },
+      "role_tags": [
+        "clean",
+        "fabric",
+        "bridge",
+        "all_stage"
+      ],
+      "data_quality": 0.78,
+      "real_material_direction": "皂净、洗衣、织物、阳光和干净麝香型复合香基",
+      "overload_groups": [
+        "clean_homogeneity"
+      ],
+      "production_mapping_status": "unverified"
+    },
+    {
+      "id": "SB-MS-03",
+      "display_name": "温暖肌肤",
+      "family": "musk_clean_skin",
+      "attribute_vector": {
+        "sweetness": 0.14,
+        "freshness": 0.2,
+        "warmth": 0.78,
+        "weight": 0.38,
+        "softness": 0.96,
+        "transparency": 0.46,
+        "diffusion": 0.18,
+        "longevity": 0.8
+      },
+      "intensity": 0.62,
+      "stage_weights": {
+        "top": 0.01,
+        "heart": 0.14,
+        "base": 0.85
+      },
+      "role_tags": [
+        "skin",
+        "base",
+        "soft",
+        "intimate"
+      ],
+      "data_quality": 0.74,
+      "real_material_direction": "贴肤麝香、柔暖木质、轻琥珀和低扩散肌肤香基",
+      "overload_groups": [],
+      "production_mapping_status": "unverified"
+    }
+  ]
+}
