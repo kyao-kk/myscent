@@ -45,11 +45,21 @@ try
     }
 
     Console.WriteLine("All formula application service regression tests passed.");
+    Console.WriteLine("Running replay and persistence-boundary regression tests:");
+    var persistenceFailures = new FormulaReplayPersistenceRegressionRunner(specifications).RunAll();
+    if (persistenceFailures.Count > 0)
+    {
+        PrintFailures("Replay and persistence-boundary regression tests failed:", persistenceFailures);
+        return 1;
+    }
+
+    Console.WriteLine("All replay and persistence-boundary regression tests passed.");
     return 0;
 }
 catch (Exception exception)
 {
-    Console.Error.WriteLine("Runtime specification, scent, formula, or service regression test failed.");
+    Console.Error.WriteLine(
+        "Runtime specification, scent, formula, service, or persistence-boundary regression test failed.");
     Console.Error.WriteLine(exception);
     return 1;
 }
