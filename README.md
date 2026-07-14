@@ -18,7 +18,7 @@ MyScent 是一个把制作场景、调配仪式、香味计算和现实调香逻
 
 ## 当前阶段
 
-项目处于 **MVP P0-A 因果模型原型准备阶段**。
+项目处于 **MVP P0-A 因果模型原型阶段**。
 
 当前优先验证：
 
@@ -38,7 +38,9 @@ MyScent 是一个把制作场景、调配仪式、香味计算和现实调香逻
 - 15 组固定回归夹具；
 - 配方命令、revision、幂等、撤销和事件日志协议；
 - 配方生命周期、分析新鲜度、持久化和场景表现状态机；
-- 精密实验室移动优先低保真工作台。
+- 精密实验室移动优先低保真工作台；
+- .NET 8 + Vue 3 模块化单体技术架构；
+- P0-A 分批实施计划和 API 契约。
 
 任何数值参数变更都必须新增版本并重新执行回归测试，不能静默修改历史结果。
 
@@ -69,6 +71,12 @@ MyScent 是一个把制作场景、调配仪式、香味计算和现实调香逻
 - `docs/product/09-p0a-executable-baseline-v0.1.md`：P0-A 可执行与回归验收基线；
 - `docs/product/10-laboratory-workbench-low-fi-v0.1.md`：精密实验室低保真工作台。
 
+### 技术文档
+
+- `docs/technical/00-p0a-architecture-v0.1.md`：P0-A 模块化单体与计算引擎架构；
+- `docs/technical/01-p0a-implementation-plan-v0.1.md`：B0～B7 实施批次与关口；
+- `docs/technical/02-p0a-api-contract-v0.1.md`：命令、分析、版本和材料目录 API 契约。
+
 ### 香味计算规格
 
 - `specs/scent/scent-blocks.v0.1.json`：24 个积木计算参数；
@@ -80,6 +88,13 @@ MyScent 是一个把制作场景、调配仪式、香味计算和现实调香逻
 
 - `specs/workbench/formula-command-protocol.v0.1.json`：配方命令与事件协议；
 - `specs/workbench/workbench-state-machine.v0.1.json`：工作台并行状态机。
+
+## 技术实施方式
+
+- 父规格分支：`agent/myscent-mvp-prd-v0.1`；
+- B0 代码分支：`agent/p0a-engine-foundation`；
+- 代码 PR 以父规格分支为目标，形成堆叠 PR；
+- 父规格未验收前，代码 PR 不直接合入 `main`。
 
 ## 协作方式
 
@@ -94,4 +109,5 @@ MyScent 是一个把制作场景、调配仪式、香味计算和现实调香逻
 ## 当前工作项
 
 - [Issue #1：启动 MyScent 产品设计与 MVP 定义](https://github.com/kyao-kk/myscent/issues/1)
-- [Draft PR #2：可玩数字调香与材料透明基线](https://github.com/kyao-kk/myscent/pull/2)
+- [Draft PR #2：P0-A 产品与可执行规格基线](https://github.com/kyao-kk/myscent/pull/2)
+- [Draft PR #4：P0-A .NET 工程与规格加载基础](https://github.com/kyao-kk/myscent/pull/4)
