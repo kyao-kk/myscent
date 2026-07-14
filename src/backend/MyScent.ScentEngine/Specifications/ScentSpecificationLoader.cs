@@ -60,8 +60,9 @@ public static class ScentSpecificationLoader
         var bytes = File.ReadAllBytes(path);
         var value = JsonSerializer.Deserialize<T>(bytes, JsonOptions)
             ?? throw new InvalidDataException($"Scent specification deserialized to null: {path}");
+        var sha256 = Convert.ToHexString(SHA256.HashData(bytes)).ToLowerInvariant();
 
-        return new LoadedDocument<T>(value, Convert.ToHexStringLower(SHA256.HashData(bytes)));
+        return new LoadedDocument<T>(value, sha256);
     }
 
     private sealed record LoadedDocument<T>(T Value, string Sha256);
