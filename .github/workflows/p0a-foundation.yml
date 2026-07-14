@@ -1,0 +1,50 @@
+name: P0-A Foundation
+
+on:
+  pull_request:
+    paths:
+      - "src/backend/**"
+      - "tests/**"
+      - "specs/**"
+      - "Directory.Build.props"
+      - "global.json"
+      - "MyScent.sln"
+      - ".github/workflows/p0a-foundation.yml"
+  push:
+    branches:
+      - agent/p0a-engine-foundation
+    paths:
+      - "src/backend/**"
+      - "tests/**"
+      - "specs/**"
+      - "Directory.Build.props"
+      - "global.json"
+      - "MyScent.sln"
+      - ".github/workflows/p0a-foundation.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-smoke-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Restore
+        run: dotnet restore MyScent.sln
+
+      - name: Build
+        run: dotnet build MyScent.sln --configuration Release --no-restore
+
+      - name: Run runtime specification smoke test
+        run: dotnet run --project tests/MyScent.SpecSmokeTests/MyScent.SpecSmokeTests.csproj --configuration Release --no-build
