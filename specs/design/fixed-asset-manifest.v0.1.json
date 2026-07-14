@@ -1,0 +1,95 @@
+{
+  "schema_version": "0.1.0",
+  "status": "approved_theme_draft_assets",
+  "theme_id": "THEME-ALCHEMY-PAINTERLY-001",
+  "theme_name": "魔法师的调香台",
+  "art_style": {
+    "medium": "thick_painterly_digital_concept_art",
+    "rendering": "semi_realistic_fantasy",
+    "clarity_rule": "interactive_objects_have_crisp_silhouettes_and_local_detail",
+    "ui_rule": "restrained_overlay_not_dashboard",
+    "forbidden": [
+      "photorealistic_product_advertising",
+      "glossy_3d_dashboard",
+      "high_density_persistent_panels",
+      "flat_cartoon",
+      "full_screen_particle_show"
+    ]
+  },
+  "composition_limits": {
+    "scene_area_min_ratio": 0.7,
+    "persistent_ui_regions_max": 3,
+    "floating_panels_max": 1,
+    "interactive_table_props_max": 8,
+    "simultaneous_major_effects_max": 2,
+    "primary_visual_focus_count": 1
+  },
+  "scene_layers": [
+    {"asset_id": "SCENE_ALCHEMY_BG_FAR", "type": "background", "interactive": false},
+    {"asset_id": "SCENE_ALCHEMY_BG_ROOM", "type": "background", "interactive": false},
+    {"asset_id": "SCENE_ALCHEMY_BG_ATMOSPHERE", "type": "effect_layer", "interactive": false},
+    {"asset_id": "SCENE_ALCHEMY_TABLE", "type": "workbench", "interactive": false},
+    {"asset_id": "SCENE_ALCHEMY_FOREGROUND", "type": "foreground", "interactive": false}
+  ],
+  "core_props": [
+    {"asset_id": "PROP_MAIN_VESSEL", "required": true, "interactive": true},
+    {"asset_id": "PROP_SCALE_OR_BALANCE", "required": true, "interactive": true},
+    {"asset_id": "PROP_DROPPER", "required": true, "interactive": true},
+    {"asset_id": "PROP_MEASURE_CUP", "required": true, "interactive": true},
+    {"asset_id": "PROP_MORTAR", "required": true, "interactive": true},
+    {"asset_id": "PROP_NOTEBOOK", "required": true, "interactive": true},
+    {"asset_id": "PROP_MATERIAL_RACK", "required": true, "interactive": true},
+    {"asset_id": "PROP_ALCHEMY_LAMP", "required": true, "interactive": false},
+    {"asset_id": "PROP_CRYSTAL_CLUSTER", "required": false, "interactive": false}
+  ],
+  "bottle_templates": [
+    {"asset_id": "BOTTLE_TYPE_A_LIGHT", "roles": ["top", "fresh", "light"]},
+    {"asset_id": "BOTTLE_TYPE_B_HEART", "roles": ["heart", "floral", "green"]},
+    {"asset_id": "BOTTLE_TYPE_C_BASE", "roles": ["base", "woody", "amber", "musk"]}
+  ],
+  "required_prop_states": [
+    "default",
+    "hover_or_selected",
+    "active_or_held",
+    "locked",
+    "unavailable"
+  ],
+  "ui_components": [
+    "current_formula_bar",
+    "material_selection_card",
+    "quantity_control",
+    "primary_feedback_card",
+    "undo_button",
+    "analyze_button",
+    "save_version_button",
+    "single_risk_notice",
+    "simplified_stage_bar",
+    "relevant_attribute_delta"
+  ],
+  "motion_ids": [
+    "M-01-material-hover",
+    "M-02-material-pickup",
+    "M-03-droplet-add",
+    "M-04-mix-and-calculate",
+    "M-05-risk-and-imbalance",
+    "M-06-balance-and-save"
+  ],
+  "palette": {
+    "charcoal": "#1C1917",
+    "deep_brown": "#2A211B",
+    "aged_gold": "#B28A4A",
+    "amber": "#B76B2A",
+    "moss_green": "#596345",
+    "parchment": "#D7C5A4",
+    "cool_gray_blue": "#596574"
+  },
+  "export_rules": {
+    "master_scene_minimum": "1920x1080",
+    "source_format": "layered_psd_or_psb",
+    "web_raster_format": "webp",
+    "icons": "svg_preferred",
+    "text_baked_into_images": false,
+    "lighting_direction_consistent": true,
+    "interactive_props_transparent": true
+  }
+}
