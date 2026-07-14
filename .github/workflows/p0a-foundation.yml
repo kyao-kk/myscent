@@ -6,6 +6,8 @@ on:
       - "src/backend/**"
       - "tests/**"
       - "specs/**"
+      - "db/**"
+      - "tools/validate_persistence_schema.py"
       - "Directory.Build.props"
       - "global.json"
       - "MyScent.sln"
@@ -17,6 +19,8 @@ on:
       - "src/backend/**"
       - "tests/**"
       - "specs/**"
+      - "db/**"
+      - "tools/validate_persistence_schema.py"
       - "Directory.Build.props"
       - "global.json"
       - "MyScent.sln"
@@ -34,6 +38,9 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Validate persistence schema structure
+        run: python3 tools/validate_persistence_schema.py
 
       - name: Set up .NET
         uses: actions/setup-dotnet@v4
@@ -65,7 +72,7 @@ jobs:
           tail -n 80 build.log
           exit 1
 
-      - name: Run runtime specification and scent regression tests
+      - name: Run runtime specification and regression tests
         id: regression
         if: steps.build.outcome == 'success'
         continue-on-error: true
