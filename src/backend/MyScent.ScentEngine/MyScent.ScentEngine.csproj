@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>MyScent.ScentEngine</RootNamespace>
+    <AssemblyName>MyScent.ScentEngine</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="../../../specs/scent/*.json"
+          Link="specs/scent/%(Filename)%(Extension)"
+          CopyToOutputDirectory="PreserveNewest"
+          CopyToPublishDirectory="PreserveNewest" />
+  </ItemGroup>
+</Project>

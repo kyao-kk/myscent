@@ -1,0 +1,96 @@
+name: P0-A Foundation
+
+on:
+  pull_request:
+    paths:
+      - "src/backend/**"
+      - "tests/**"
+      - "specs/**"
+      - "db/**"
+      - "tools/validate_persistence_schema.py"
+      - "Directory.Build.props"
+      - "global.json"
+      - "MyScent.sln"
+      - ".github/workflows/p0a-foundation.yml"
+  push:
+    branches:
+      - agent/p0a-engine-foundation
+    paths:
+      - "src/backend/**"
+      - "tests/**"
+      - "specs/**"
+      - "db/**"
+      - "tools/validate_persistence_schema.py"
+      - "Directory.Build.props"
+      - "global.json"
+      - "MyScent.sln"
+      - ".github/workflows/p0a-foundation.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-smoke-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Validate persistence schema structure
+        run: python3 tools/validate_persistence_schema.py
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Restore
+        run: dotnet restore MyScent.sln
+
+      - name: Build
+        id: build
+        continue-on-error: true
+        shell: bash
+        run: dotnet build MyScent.sln --configuration Release --no-restore > build.log 2>&1
+
+      - name: Upload build failure log
+        if: steps.build.outcome == 'failure'
+        uses: actions/upload-artifact@v4
+        with:
+          name: p0a-build-failure-log
+          path: build.log
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Report build failure
+        if: steps.build.outcome == 'failure'
+        shell: bash
+        run: |
+          tail -n 80 build.log
+          exit 1
+
+      - name: Run runtime specification and regression tests
+        id: regression
+        if: steps.build.outcome == 'success'
+        continue-on-error: true
+        shell: bash
+        run: dotnet run --project tests/MyScent.SpecSmokeTests/MyScent.SpecSmokeTests.csproj --configuration Release --no-build > regression.log 2>&1
+
+      - name: Upload regression failure log
+        if: steps.regression.outcome == 'failure'
+        uses: actions/upload-artifact@v4
+        with:
+          name: p0a-regression-failure-log
+          path: regression.log
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Report regression failure
+        if: steps.regression.outcome == 'failure'
+        shell: bash
+        run: |
+          cat regression.log
+          exit 1

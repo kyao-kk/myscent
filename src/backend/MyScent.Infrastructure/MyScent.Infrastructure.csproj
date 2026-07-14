@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>MyScent.Infrastructure</RootNamespace>
+    <AssemblyName>MyScent.Infrastructure</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../MyScent.Formulas/MyScent.Formulas.csproj" />
+  </ItemGroup>
+</Project>
