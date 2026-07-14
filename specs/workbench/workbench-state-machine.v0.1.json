@@ -1,0 +1,167 @@
+{
+  "schema_version": "0.1.0",
+  "machine_version": "0.1.0",
+  "status": "draft_executable_baseline",
+  "machine_id": "myscent_formula_workbench",
+  "type": "parallel_state_machine",
+  "purpose": "Keep formula lifecycle, analysis freshness, persistence and scene presentation explicit so UI animation cannot become the source of truth.",
+  "regions": {
+    "formula_lifecycle": {
+      "initial": "no_formula",
+      "states": {
+        "no_formula": {
+          "allowed_commands": ["formula.create"],
+          "ui_capabilities": ["create_formula", "restore_local_draft"]
+        },
+        "editing_clean": {
+          "description": "Editable formula whose current revision has no unsaved local command.",
+          "allowed_commands": ["component.add", "component.increase", "component.decrease", "component.set_quantity", "component.remove", "component.replace", "operation.undo", "analysis.request", "version.snapshot", "version.branch", "scene.switch"],
+          "ui_capabilities": ["edit_components", "request_analysis", "switch_scene", "save_snapshot"]
+        },
+        "editing_dirty": {
+          "description": "Formula changed after the latest full analysis or snapshot.",
+          "allowed_commands": ["component.add", "component.increase", "component.decrease", "component.set_quantity", "component.remove", "component.replace", "operation.undo", "analysis.request", "scene.switch"],
+          "ui_capabilities": ["edit_components", "instant_feedback", "request_analysis", "switch_scene"],
+          "restrictions": ["cannot_seal", "cannot_create_verified_snapshot"]
+        },
+        "analyzed": {
+          "description": "Latest successful full analysis matches current formula revision.",
+          "allowed_commands": ["component.add", "component.increase", "component.decrease", "component.set_quantity", "component.remove", "component.replace", "operation.undo", "analysis.request", "version.snapshot", "version.branch", "scene.switch", "formula.seal"],
+          "ui_capabilities": ["show_full_analysis", "compare_previous", "save_snapshot", "seal_formula"]
+        },
+        "version_saved": {
+          "description": "An immutable snapshot exists for the current analyzed revision; formula may continue editing afterward.",
+          "allowed_commands": ["component.add", "component.increase", "component.decrease", "component.set_quantity", "component.remove", "component.replace", "operation.undo", "analysis.request", "version.branch", "scene.switch", "formula.seal"],
+          "ui_capabilities": ["show_saved_badge", "branch_version", "continue_editing", "seal_formula"]
+        },
+        "sealed": {
+          "description": "Current version is immutable and complete.",
+          "allowed_commands": ["version.branch"],
+          "ui_capabilities": ["view_formula", "view_analysis", "generate_optional_derived_assets", "branch_version"],
+          "restrictions": ["no_direct_component_mutation", "no_undo_across_seal"]
+        }
+      }
+    },
+    "analysis": {
+      "initial": "not_available",
+      "states": {
+        "not_available": {
+          "description": "Formula has no components or has never been analyzed."
+        },
+        "stale": {
+          "description": "A previous analysis exists but formula revision has changed.",
+          "ui_rules": ["show_previous_result_as_stale", "do_not_present_previous_metrics_as_current"]
+        },
+        "pending_instant": {
+          "description": "Compact incremental analysis is running.",
+          "ui_rules": ["keep_workbench_interactive", "do_not_block_new_component_commands"]
+        },
+        "pending_full": {
+          "description": "Immutable current revision is being fully analyzed.",
+          "ui_rules": ["show_analysis_ritual", "allow_cancel_display_only", "do_not_mutate_snapshot"]
+        },
+        "fresh": {
+          "description": "Successful full analysis revision equals current formula revision.",
+          "invariants": ["analysis_revision == formula_revision"]
+        },
+        "failed_recoverable": {
+          "description": "Analysis failed without changing formula state.",
+          "ui_rules": ["preserve_formula", "show_retry", "show_validation_evidence_when_available"]
+        }
+      }
+    },
+    "persistence": {
+      "initial": "local_only",
+      "states": {
+        "local_only": {
+          "description": "Guest or offline draft exists only in local durable storage.",
+          "ui_rules": ["show_local_draft_indicator"]
+        },
+        "sync_pending": {
+          "description": "One or more accepted local/server commands await durable cloud confirmation.",
+          "ui_rules": ["show_syncing", "keep_command_ids_for_retry"]
+        },
+        "synced": {
+          "description": "Current formula revision is durably stored remotely.",
+          "invariants": ["remote_revision == formula_revision"]
+        },
+        "revision_conflict": {
+          "description": "Server revision differs from client expected revision.",
+          "ui_rules": ["block_new_mutating_commands", "show_remote_delta", "require_explicit_reload_or_branch"],
+          "automatic_merge": false
+        },
+        "sync_failed_recoverable": {
+          "description": "Network or server failure; local command journal is retained.",
+          "ui_rules": ["allow_retry", "never_discard_unacknowledged_commands"]
+        }
+      }
+    },
+    "scene_presentation": {
+      "initial": "laboratory",
+      "states": {
+        "laboratory": {
+          "scene_id": "SCENE-LAB-001",
+          "presentation_profile": "precision_instruments"
+        },
+        "alchemy": {
+          "scene_id": "SCENE-ALCHEMY-001",
+          "presentation_profile": "ritual_symbols"
+        }
+      },
+      "invariants": [
+        "scene changes do not increment formula revision",
+        "scene changes do not alter formula hash",
+        "scene changes do not alter canonical numeric analysis"
+      ]
+    }
+  },
+  "transitions": [
+    {"event": "formula.create.accepted", "region": "formula_lifecycle", "from": ["no_formula"], "to": "editing_clean"},
+    {"event": "formula.create.accepted", "region": "analysis", "from": ["not_available"], "to": "not_available"},
+    {"event": "mutating_component_command.accepted", "region": "formula_lifecycle", "from": ["editing_clean", "editing_dirty", "analyzed", "version_saved"], "to": "editing_dirty"},
+    {"event": "mutating_component_command.accepted", "region": "analysis", "from": ["fresh", "failed_recoverable", "not_available"], "to": "stale"},
+    {"event": "analysis.request.instant.accepted", "region": "analysis", "from": ["not_available", "stale", "fresh", "failed_recoverable"], "to": "pending_instant"},
+    {"event": "analysis.instant.succeeded", "region": "analysis", "from": ["pending_instant"], "to": "stale"},
+    {"event": "analysis.request.full.accepted", "region": "analysis", "from": ["not_available", "stale", "fresh", "failed_recoverable"], "to": "pending_full"},
+    {"event": "analysis.full.succeeded_current_revision", "region": "analysis", "from": ["pending_full"], "to": "fresh"},
+    {"event": "analysis.full.succeeded_current_revision", "region": "formula_lifecycle", "from": ["editing_clean", "editing_dirty", "analyzed", "version_saved"], "to": "analyzed"},
+    {"event": "analysis.full.succeeded_stale_revision", "region": "analysis", "from": ["pending_full"], "to": "stale"},
+    {"event": "analysis.failed", "region": "analysis", "from": ["pending_instant", "pending_full"], "to": "failed_recoverable"},
+    {"event": "version.snapshot.accepted", "region": "formula_lifecycle", "from": ["analyzed", "editing_clean"], "to": "version_saved"},
+    {"event": "formula.seal.accepted", "region": "formula_lifecycle", "from": ["analyzed", "version_saved"], "to": "sealed"},
+    {"event": "version.branch.accepted", "region": "formula_lifecycle", "from": ["sealed", "version_saved", "analyzed", "editing_clean"], "to": "editing_clean"},
+    {"event": "version.branch.accepted", "region": "analysis", "from": ["fresh", "stale", "failed_recoverable"], "to": "fresh"},
+    {"event": "scene.switch.to_laboratory", "region": "scene_presentation", "from": ["alchemy"], "to": "laboratory"},
+    {"event": "scene.switch.to_alchemy", "region": "scene_presentation", "from": ["laboratory"], "to": "alchemy"},
+    {"event": "remote_sync.started", "region": "persistence", "from": ["local_only", "synced", "sync_failed_recoverable"], "to": "sync_pending"},
+    {"event": "remote_sync.succeeded", "region": "persistence", "from": ["sync_pending"], "to": "synced"},
+    {"event": "remote_sync.failed", "region": "persistence", "from": ["sync_pending"], "to": "sync_failed_recoverable"},
+    {"event": "remote_sync.revision_conflict", "region": "persistence", "from": ["sync_pending", "synced"], "to": "revision_conflict"},
+    {"event": "revision_conflict.reload_remote", "region": "persistence", "from": ["revision_conflict"], "to": "synced"},
+    {"event": "revision_conflict.branch_local", "region": "persistence", "from": ["revision_conflict"], "to": "sync_pending"}
+  ],
+  "guards": {
+    "full_analysis_matches_current_revision": "analysis.state == fresh and analysis_revision == formula_revision",
+    "formula_editable": "formula_lifecycle not in sealed",
+    "no_persistence_conflict": "persistence.state != revision_conflict",
+    "can_seal": "full_analysis_matches_current_revision and formula has at least one component and disclaimer accepted",
+    "can_snapshot": "full_analysis_matches_current_revision",
+    "can_undo": "undo stack non-empty and latest undo boundary is not sealed"
+  },
+  "invariants": [
+    "Formula aggregate is the source of truth; visual container state is derived.",
+    "Every accepted mutating command creates exactly one append-only event and increments formula revision exactly once.",
+    "A failed command or failed analysis never partially mutates formula state.",
+    "A stale analysis is never labeled as current.",
+    "Scene presentation cannot alter formula hash or numeric output.",
+    "Sealed versions are immutable; all further work starts from an explicit branch.",
+    "Undo is a compensating event and never deletes history.",
+    "Revision conflicts are never silently merged."
+  ],
+  "recovery": {
+    "page_reload": "Restore latest acknowledged formula state, then replay locally journaled unacknowledged commands in original command-id order only after revision validation.",
+    "analysis_worker_restart": "Requeue by formula revision and analysis idempotency key; duplicate result must be discarded or returned idempotently.",
+    "offline_to_online": "Submit retained command journal sequentially with expected revisions; stop on first revision conflict.",
+    "guest_login": "Bind guest formula to authenticated owner without changing formula components, revision history, formula hash or analysis snapshot."
+  }
+}
