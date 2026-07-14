@@ -28,7 +28,7 @@ public static class ScentSpecificationValidator
         return errors;
     }
 
-    private static void ValidateBlocks(ScentBlockCatalog catalog, ICollection<string> errors)
+    private static void ValidateBlocks(ScentBlockCatalog catalog, List<string> errors)
     {
         if (catalog.Blocks.Count != 24)
         {
@@ -94,7 +94,7 @@ public static class ScentSpecificationValidator
     private static void ValidateRelations(
         ScentRelationCatalog catalog,
         ScentBlockCatalog blocks,
-        ICollection<string> errors)
+        List<string> errors)
     {
         var blockIds = blocks.Blocks
             .Select(static block => block.Id)
@@ -163,7 +163,7 @@ public static class ScentSpecificationValidator
         }
     }
 
-    private static void ValidateEngine(ScentEngineSpecification engine, ICollection<string> errors)
+    private static void ValidateEngine(ScentEngineSpecification engine, List<string> errors)
     {
         if (!string.Equals(engine.EngineVersion, "0.1.0", StringComparison.Ordinal))
         {
@@ -203,7 +203,7 @@ public static class ScentSpecificationValidator
         IEnumerable<string> actual,
         IReadOnlySet<string> expected,
         string label,
-        ICollection<string> errors)
+        List<string> errors)
     {
         var actualSet = actual.ToHashSet(StringComparer.Ordinal);
         if (!actualSet.SetEquals(expected))
@@ -219,7 +219,7 @@ public static class ScentSpecificationValidator
         double minimum,
         double maximum,
         string label,
-        ICollection<string> errors)
+        List<string> errors)
     {
         if (!double.IsFinite(value) || value < minimum || value > maximum)
         {
