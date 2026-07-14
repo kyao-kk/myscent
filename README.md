@@ -1,38 +1,113 @@
 # MyScent
 
-> 把故事做成香水。
+> 让调香像游戏一样可玩，让游戏中的每一步又真实影响香水结果。
 
-MyScent 是一个连接数字调香、内容创作、社区互动与真实制作的香水作品平台。用户可以把一段情绪、记忆、角色或世界观创作成一款带有名称、香语、故事、视觉、视频和声音的香水作品，并在后续阶段购买配方、试香或成品。
+MyScent 是一个把制作场景、调配仪式、香味计算和现实调香逻辑连接起来的可玩数字调香台。
+
+用户在场景中执行的取料、滴加、混合、静置、数字试闻和修正，都会进入统一配方状态；系统计算出的前中后调、属性、主体、遮盖和冲突，又会通过场景内的视觉、声音和仪器反馈返回玩家。
+
+故事、香语、海报、短视频、社区和交易属于制作完成后的衍生层，不是核心制作体验的前置条件。
 
 ## 产品核心
 
-- **调香创作引擎**：为普通玩家、有经验玩家和高级玩家提供不同深度的创作方式。
-- **内容生成引擎**：生成香水名称、香语、故事、海报、香调卡、短视频与场景音效。
-- **社区与交易引擎**：支持发布、评论、收藏、二创、配方交易以及后续试香和成品履约。
+- **制作场景与调配仪式**：用精密实验室、魔法师、东方香房等交互语言承载真实调配动作。
+- **统一配方与香味计算**：根据香气积木、相对比例、阶段倾向、强度和关系规则产生确定性数字预测。
+- **场景反馈**：把属性变化、主体被遮盖、结构失衡和修正方向变成可见、可听、可操作的反馈。
+- **玩家成长**：普通、进阶和未来高级模式共用同一配方底层，逐步揭示真实材料与专业参数。
+- **现实桥接**：公开材料真实性，保护复现精度；允许学习与外购，同时保留计算、版本、批次和履约价值。
 
 ## 当前阶段
 
-项目当前处于产品定义与 MVP 设计阶段。首轮目标是验证：
+项目处于 **MVP P0-A 因果模型原型阶段**。
 
-1. 用户是否愿意把故事、情绪与设定创作成香水作品；
-2. 香语、视觉、视频和音效是否能提高发布与分享意愿；
-3. 用户是否愿意浏览、评论、收藏与二创他人的作品；
-4. 在进入实物供应链前，能否通过内容和社区行为验证市场需求。
+当前优先验证：
+
+1. 玩家动作是否稳定改变香味计算；
+2. 计算结果是否可解释、非随机；
+3. 普通玩家是否能完成加入、分析和修正；
+4. 有经验玩家是否认可底层因果；
+5. 同一配方在不同制作场景中是否保持核心结果一致。
+
+在 P0-A 通过前，不优先建设完整社区、创作者商业化、真实履约和高成本视频。
+
+## P0-A 已固定基线
+
+- 24 个香气积木参数；
+- 27 条成对关系和 5 条组规则；
+- 唯一可执行计算顺序、阈值和舍入方式；
+- 15 组固定回归夹具；
+- 配方命令、revision、幂等、撤销和事件日志协议；
+- 配方生命周期、分析新鲜度、持久化和场景表现状态机；
+- 精密实验室移动优先低保真工作台；
+- .NET 8 + Vue 3 模块化单体技术架构；
+- P0-A 分批实施计划和 API 契约。
+
+任何数值参数变更都必须新增版本并重新执行回归测试，不能静默修改历史结果。
+
+## 材料透明原则
+
+> 公开材料真实性，保护复现精度。
+
+- 普通玩家看到气味意象，并可展开真实材料方向；
+- 进阶玩家看到代表性材料、相对作用、阶段位置和比例；
+- 高级玩家后续按权限查看精确材料、浓度、比例和导出；
+- 供应商、批次、生产参数、熟化和打样修正默认不公开；
+- 用户可以外购材料并继续使用 MyScent 的计算、记录和版本能力。
+
+## 当前文档与规格
+
+### 产品文档
+
+- `docs/product/00-product-vision.md`：产品愿景与定位；
+- `docs/product/01-product-roadmap.md`：产品路线图；
+- `docs/product/02-mvp-prd-v0.1.md`：已废止旧稿；
+- `docs/product/02-mvp-prd-v0.2.md`：新版可玩调香 MVP PRD；
+- `docs/product/03-mvp-review-v0.1.md`：MVP 产品审查；
+- `docs/product/04-scent-blocks-v0.1.md`：24 个香气积木语义规格；
+- `docs/product/05-gameplay-reality-bridge-v0.1.md`：游戏与现实调香桥接框架；
+- `docs/product/06-material-transparency-and-fulfillment-v0.1.md`：材料透明和履约策略；
+- `docs/product/07-mvp-prd-v0.2-review-v0.1.md`：新版 PRD 硬审与 P0-A/B/C 关口；
+- `docs/product/08-scent-calculation-model-v0.1.md`：香味计算概念模型；
+- `docs/product/09-p0a-executable-baseline-v0.1.md`：P0-A 可执行与回归验收基线；
+- `docs/product/10-laboratory-workbench-low-fi-v0.1.md`：精密实验室低保真工作台。
+
+### 技术文档
+
+- `docs/technical/00-p0a-architecture-v0.1.md`：P0-A 模块化单体与计算引擎架构；
+- `docs/technical/01-p0a-implementation-plan-v0.1.md`：B0～B7 实施批次与关口；
+- `docs/technical/02-p0a-api-contract-v0.1.md`：命令、分析、版本和材料目录 API 契约。
+
+### 香味计算规格
+
+- `specs/scent/scent-blocks.v0.1.json`：24 个积木计算参数；
+- `specs/scent/scent-relations.v0.1.json`：互补、桥接、遮盖、冲突与组过载规则；
+- `specs/scent/scent-engine.v0.1.json`：唯一可执行计算参数与公式；
+- `specs/scent/scent-fixtures.v0.1.json`：15 组确定性回归夹具。
+
+### 工作台规格
+
+- `specs/workbench/formula-command-protocol.v0.1.json`：配方命令与事件协议；
+- `specs/workbench/workbench-state-machine.v0.1.json`：工作台并行状态机。
+
+## 技术实施方式
+
+- 父规格分支：`agent/myscent-mvp-prd-v0.1`；
+- B0 代码分支：`agent/p0a-engine-foundation`；
+- 代码 PR 以父规格分支为目标，形成堆叠 PR；
+- 父规格未验收前，代码 PR 不直接合入 `main`。
 
 ## 协作方式
 
-整个项目统一采用 `product-development-ai-collaboration-plus`：
+项目采用：
 
 `Issue → Branch → Design/Development → PR → CI → Audit → Acceptance → Merge → Remote Readback`
 
-- AI 可以负责分析、方案、文档、实现、测试和审计材料；
-- 影响正式项目资产、范围、版本或发布状态的动作必须经过项目负责人确认；
-- 默认通过独立分支和 Draft PR 交付，不直接修改或合并正式版本。
+- AI 可以负责分析、文档、实现、测试和审计材料；
+- 影响正式范围、版本、规则或发布状态的动作需项目负责人确认；
+- 默认通过独立分支和 Draft PR 交付，不直接合并正式版本。
 
-## 项目文档
+## 当前工作项
 
-产品文档将在 `docs/product/` 下持续维护。
-
-## 当前 Issue
-
-- [#1 启动 MyScent 产品设计与 MVP 定义](https://github.com/kyao-kk/myscent/issues/1)
+- [Issue #1：启动 MyScent 产品设计与 MVP 定义](https://github.com/kyao-kk/myscent/issues/1)
+- [Draft PR #2：P0-A 产品与可执行规格基线](https://github.com/kyao-kk/myscent/pull/2)
+- [Draft PR #4：P0-A .NET 工程与规格加载基础](https://github.com/kyao-kk/myscent/pull/4)

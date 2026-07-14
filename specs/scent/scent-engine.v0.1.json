@@ -1,0 +1,186 @@
+{
+  "schema_version": "0.1.0",
+  "engine_version": "0.1.0",
+  "status": "draft_executable_baseline",
+  "scope": "P0-A deterministic digital scent prediction",
+  "dependencies": {
+    "block_library": "scent-blocks.v0.1.json",
+    "relation_library": "scent-relations.v0.1.json"
+  },
+  "disclaimer": "This is a deterministic product-model baseline for prototype testing. It is not a molecular simulation, safety assessment, professional perfumery conclusion, or production formula.",
+  "numeric_policy": {
+    "internal_precision": 8,
+    "comparison_precision": 6,
+    "api_rounding_digits": 4,
+    "range": [0.0, 1.0],
+    "clamp": "hard_clamp_0_1",
+    "nan_or_infinity": "reject_analysis_and_preserve_formula"
+  },
+  "contribution": {
+    "gamma": 0.85,
+    "normalized_share": "p_i = q_i / sum(q)",
+    "effective_strength": "e_i = pow(p_i, gamma) * intensity_i",
+    "normalized_effective_share": "n_i = e_i / sum(e)",
+    "minimum_positive_quantity": 0.000001,
+    "zero_or_negative_quantity": "component_inactive"
+  },
+  "rule_order": [
+    "validate_input",
+    "calculate_effective_share",
+    "apply_masking_to_component_contribution",
+    "renormalize_perceived_contribution",
+    "calculate_base_attributes",
+    "apply_synergy_attribute_delta",
+    "apply_bridge_continuity_delta",
+    "apply_conflict_penalty",
+    "calculate_stages",
+    "calculate_derived_metrics",
+    "apply_group_rules",
+    "detect_problems",
+    "calculate_confidence",
+    "generate_evidence_and_suggestions"
+  ],
+  "pair_relation_policy": {
+    "activation": "both components active and min(perceived_share_source, perceived_share_target) >= threshold, except masking which uses source share >= threshold",
+    "masking": {
+      "effect": "max(0, source_share - threshold) * strength",
+      "target_factor": "target_factor * (1 - effect)",
+      "aggregation": "multiply all active target factors, then renormalize all perceived contributions once",
+      "evidence_threshold": 0.000001,
+      "masked_subject_problem_threshold": 0.06
+    },
+    "synergy": {
+      "effect": "min(source_share, target_share) * strength",
+      "attribute_delta": "add effect to every affected core attribute"
+    },
+    "bridge": {
+      "effect": "min(source_share, target_share) * strength",
+      "aggregation": "sum active bridge effects"
+    },
+    "conflict": {
+      "effect": "min(source_share, target_share) * strength",
+      "derived_metric_penalty": "sum active conflict effects",
+      "core_attribute_delta": "for affected core attributes, subtract effect * 0.5",
+      "problem_code": "pair_conflict"
+    }
+  },
+  "attributes": {
+    "keys": [
+      "sweetness",
+      "freshness",
+      "warmth",
+      "weight",
+      "softness",
+      "transparency",
+      "diffusion",
+      "longevity"
+    ],
+    "base_formula": "attribute[d] = sum(perceived_share_i * block_vector_i[d])",
+    "finalization": "apply relation deltas then clamp to 0..1"
+  },
+  "stages": {
+    "keys": ["top", "heart", "base"],
+    "component_stage_contribution": "perceived_effective_i * stage_weight_i_s",
+    "stage_share": "sum(component_stage_contribution_s) / sum(all_stage_contributions)",
+    "stage_component_share": "component_stage_contribution_i_s / sum(component_stage_contribution_s)",
+    "insufficient_stage_share": 0.18,
+    "dominant_stage_share": 0.48,
+    "clear_primary_share": 0.35,
+    "clear_primary_gap": 0.12,
+    "concentrated_top_two_share": 0.60,
+    "dispersed_primary_max": 0.25
+  },
+  "continuity": {
+    "family_overlap": "sum(min(family_share_stage_a, family_share_stage_b))",
+    "bridge_bonus": "clamp(sum(active_bridge_effects) * 4)",
+    "stage_link": "clamp(0.75 * family_overlap + 0.25 * bridge_bonus)",
+    "middle_support": "clamp(heart_stage_share / 0.30)",
+    "formula": "clamp(0.40 * top_heart_link + 0.40 * heart_base_link + 0.20 * middle_support - conflict_penalty)"
+  },
+  "complexity": {
+    "entropy": "if component_count <= 1 then 0 else -sum(n_i * ln(n_i)) / ln(component_count)",
+    "family_diversity": "min(1, active_family_count / 5)",
+    "interaction_density": "min(1, active_pair_relation_count / max(1, component_count * (component_count - 1) / 2))",
+    "formula": "clamp(0.55 * entropy + 0.30 * family_diversity + 0.15 * interaction_density + group_complexity_delta)",
+    "levels": {
+      "simple_max": 0.30,
+      "moderate_max": 0.55,
+      "complex_max": 0.75,
+      "high_complexity_min": 0.76
+    }
+  },
+  "clarity": {
+    "dominance": "clamp((primary_share - secondary_share) / 0.20)",
+    "family_coherence": "largest family perceived share",
+    "stage_balance": "clamp(3 * min(top_stage_share, heart_stage_share, base_stage_share))",
+    "low_masking": "clamp(1 - 3 * sum(max(0, pre_mask_share_i - post_mask_share_i)))",
+    "theme_penalty": "max(0, active_family_count - 5) * 0.04",
+    "formula": "clamp(0.30 * dominance + 0.20 * family_coherence + 0.20 * continuity + 0.15 * stage_balance + 0.15 * low_masking - conflict_penalty - theme_penalty + group_clarity_delta)",
+    "levels": {
+      "clear_min": 0.75,
+      "basically_clear_min": 0.55,
+      "blurred_min": 0.35,
+      "chaotic_max": 0.349999
+    }
+  },
+  "balance": {
+    "overload_penalty": "sum(abs(group clarity delta) for active overload or homogeneity group rules)",
+    "formula": "clamp(0.50 * stage_balance + 0.25 * (1 - clamp(conflict_penalty * 2)) + 0.25 * (1 - clamp(overload_penalty * 2)))"
+  },
+  "group_rule_policy": {
+    "active_component": "component is in group and perceived share > 0",
+    "combined_effective_share": "sum perceived shares of group members",
+    "conditions_source": "final core attributes before group deltas",
+    "effects": "apply clarity_delta and complexity_delta exactly once per active group rule"
+  },
+  "problem_detection": {
+    "too_sweet": "sweetness >= 0.78 and sweet_heavy share >= 0.35, unless too_sweet_heavy already active",
+    "too_heavy": "weight >= 0.78 and transparency <= 0.28, unless dark_heavy_overload already active",
+    "middle_missing": "heart stage share < 0.18 or heart stage primary share < 0.25",
+    "tail_insufficient": "base stage share < 0.18 or longevity < 0.35",
+    "masked_subject": "any active masking effect >= 0.06",
+    "too_many_themes": "active family count >= 5 or (active family count >= 4 and clarity < 0.45 and complexity > 0.65)",
+    "cold_warm_tension": "REL-027 active or (freshness >= 0.65 and warmth >= 0.65 and conflict_penalty > 0)",
+    "pair_conflict": "one or more conflict relations active"
+  },
+  "confidence": {
+    "data_completeness": "sum(perceived_share_i * data_quality_i)",
+    "rule_coverage": "0.60 + 0.40 * min(1, covered_component_pairs / max(1, all_component_pairs))",
+    "mapping_quality_builtin_block": 0.85,
+    "in_domain": {
+      "one_to_six_components": 1.0,
+      "seven_to_eight_components": 0.75,
+      "more_than_eight_components": 0.50
+    },
+    "version_stability_draft": 0.75,
+    "formula": "0.30 * data_completeness + 0.25 * rule_coverage + 0.20 * mapping_quality + 0.15 * in_domain + 0.10 * version_stability",
+    "levels": {
+      "high_min": 0.80,
+      "medium_min": 0.55,
+      "low_max": 0.549999
+    },
+    "external_material_override": "external material data quality and mapping quality replace built-in defaults; incomplete external material must not receive high confidence"
+  },
+  "determinism": {
+    "required": true,
+    "same_input_same_versions": "byte-equivalent numeric output after canonical key ordering and API rounding",
+    "randomness_allowed_in_core": false,
+    "randomness_allowed_in_scene_or_derived_assets": true,
+    "random_seed_required_for_replay": true
+  },
+  "canonicalization": {
+    "component_order": "sort by component id before hashing",
+    "formula_hash_fields": [
+      "components",
+      "engine_version",
+      "block_library_version",
+      "relation_library_version"
+    ],
+    "exclude_from_hash": [
+      "scene_id",
+      "display_language",
+      "explanation_wording",
+      "derived_assets"
+    ]
+  }
+}

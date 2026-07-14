@@ -1,0 +1,39 @@
+name: Spec Validation
+
+on:
+  pull_request:
+    paths:
+      - "specs/**"
+      - "tools/validate_specs.py"
+      - ".github/workflows/spec-validation.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "specs/**"
+      - "tools/validate_specs.py"
+      - ".github/workflows/spec-validation.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate-specifications:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Compile validator
+        run: python -m py_compile tools/validate_specs.py
+
+      - name: Validate specification integrity
+        run: python tools/validate_specs.py

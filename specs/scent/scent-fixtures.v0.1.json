@@ -1,0 +1,292 @@
+{
+  "schema_version": "0.1.0",
+  "engine_version": "0.1.0",
+  "block_library_version": "0.1.0",
+  "relation_library_version": "0.1.0",
+  "status": "draft_regression_baseline",
+  "numeric_tolerance": 0.0001,
+  "notes": [
+    "Expected numeric outputs are calculated from scent-engine.v0.1.json.",
+    "Fixtures validate product-model determinism and explainability, not real perfume accuracy.",
+    "Changing any expected numeric output requires an engine or data version change and review."
+  ],
+  "fixtures": [
+    {
+      "id": "T-001",
+      "name": "single component",
+      "purpose": "A single block must reproduce its own attributes and stage weights.",
+      "components": [
+        {"block_id": "SB-CA-01", "quantity": 1.0}
+      ],
+      "expected": {
+        "attributes": {"sweetness": 0.22, "freshness": 0.9, "warmth": 0.32, "weight": 0.16, "softness": 0.42, "transparency": 0.82, "diffusion": 0.72, "longevity": 0.22},
+        "stage_shares": {"top": 0.82, "heart": 0.16, "base": 0.02},
+        "primary": [{"block_id": "SB-CA-01", "share": 1.0}],
+        "metrics": {"clarity": 0.8003, "complexity": 0.06, "continuity": 0.7067, "balance": 0.53, "confidence": 0.803},
+        "active_relations": [],
+        "problems": ["middle_missing", "tail_insufficient"]
+      }
+    },
+    {
+      "id": "T-002",
+      "name": "two-component synergy",
+      "purpose": "Bergamot light and transparent white flower must activate REL-001 and increase freshness and transparency.",
+      "components": [
+        {"block_id": "SB-CA-01", "quantity": 4.0},
+        {"block_id": "SB-FL-01", "quantity": 6.0}
+      ],
+      "expected": {
+        "attributes": {"sweetness": 0.2887, "freshness": 0.8167, "warmth": 0.4001, "weight": 0.2287, "softness": 0.6261, "transparency": 0.897, "diffusion": 0.6399, "longevity": 0.3459},
+        "stage_shares": {"top": 0.4078, "heart": 0.5149, "base": 0.0772},
+        "primary": [{"block_id": "SB-FL-01", "share": 0.5725}, {"block_id": "SB-CA-01", "share": 0.4275}],
+        "metrics": {"clarity": 0.6318, "complexity": 0.8116, "continuity": 0.5753, "balance": 0.6159, "confidence": 0.8927},
+        "active_relations": ["REL-001"],
+        "problems": ["tail_insufficient"]
+      }
+    },
+    {
+      "id": "T-003",
+      "name": "directional masking",
+      "purpose": "Caramel coating must directionally mask rain air and retain an evidence trail.",
+      "components": [
+        {"block_id": "SB-CA-03", "quantity": 3.0},
+        {"block_id": "SB-FL-01", "quantity": 2.0},
+        {"block_id": "SB-GO-02", "quantity": 5.0}
+      ],
+      "expected": {
+        "attributes": {"sweetness": 0.6847, "freshness": 0.3651, "warmth": 0.6532, "weight": 0.6149, "softness": 0.6186, "transparency": 0.4444, "diffusion": 0.6819, "longevity": 0.6109},
+        "stage_shares": {"top": 0.1791, "heart": 0.48, "base": 0.3409},
+        "primary": [{"block_id": "SB-GO-02", "share": 0.6207}, {"block_id": "SB-FL-01", "share": 0.1916}],
+        "metrics": {"clarity": 0.7376, "complexity": 0.7439, "continuity": 0.5071, "balance": 0.7686, "confidence": 0.8468},
+        "active_relations": ["REL-016", "REL-002"],
+        "problems": ["masked_subject"],
+        "required_evidence": [{"relation_id": "REL-016", "source": "SB-GO-02", "target": "SB-CA-03"}]
+      }
+    },
+    {
+      "id": "T-004",
+      "name": "sweet-heavy overload",
+      "purpose": "Multiple sweet and heavy blocks must trigger overload and actionable correction paths.",
+      "components": [
+        {"block_id": "SB-GO-01", "quantity": 3.5},
+        {"block_id": "SB-GO-02", "quantity": 3.5},
+        {"block_id": "SB-AS-01", "quantity": 2.0},
+        {"block_id": "SB-WE-02", "quantity": 1.0}
+      ],
+      "expected": {
+        "attributes": {"sweetness": 0.8399, "freshness": 0.0788, "warmth": 0.8706, "weight": 0.8035, "softness": 0.7316, "transparency": 0.1573, "diffusion": 0.6127, "longevity": 0.857},
+        "stage_shares": {"top": 0.0243, "heart": 0.292, "base": 0.6837},
+        "primary": [{"block_id": "SB-GO-02", "share": 0.3703}, {"block_id": "SB-GO-01", "share": 0.3231}],
+        "metrics": {"clarity": 0.4135, "complexity": 0.7743, "continuity": 0.7243, "balance": 0.4865, "confidence": 0.812},
+        "active_relations": ["REL-021"],
+        "problems": ["too_sweet_heavy", "too_heavy"],
+        "required_suggestion_actions": ["decrease_component", "add_or_increase_bitter_fresh_bridge", "add_or_increase_dry_wood_support"]
+      }
+    },
+    {
+      "id": "T-005",
+      "name": "missing heart stage",
+      "purpose": "A top-heavy citrus and base-heavy amber pair must expose a weak middle stage.",
+      "components": [
+        {"block_id": "SB-CA-02", "quantity": 5.0},
+        {"block_id": "SB-AS-01", "quantity": 5.0}
+      ],
+      "expected": {
+        "attributes": {"sweetness": 0.4704, "freshness": 0.4654, "warmth": 0.6191, "weight": 0.5391, "softness": 0.535, "transparency": 0.4274, "diffusion": 0.6689, "longevity": 0.5902},
+        "stage_shares": {"top": 0.3888, "heart": 0.1577, "base": 0.4535},
+        "primary": [{"block_id": "SB-AS-01", "share": 0.5543}, {"block_id": "SB-CA-02", "share": 0.4457}],
+        "metrics": {"clarity": 0.5774, "complexity": 0.6653, "continuity": 0.4124, "balance": 0.7366, "confidence": 0.7943},
+        "active_relations": [],
+        "problems": ["middle_missing"]
+      }
+    },
+    {
+      "id": "T-006",
+      "name": "insufficient base stage",
+      "purpose": "A citrus, white-flower and pear structure must identify weak tail support.",
+      "components": [
+        {"block_id": "SB-CA-01", "quantity": 4.0},
+        {"block_id": "SB-FL-01", "quantity": 3.5},
+        {"block_id": "SB-FR-01", "quantity": 2.5}
+      ],
+      "expected": {
+        "attributes": {"sweetness": 0.3265, "freshness": 0.8782, "warmth": 0.3681, "weight": 0.2062, "softness": 0.6039, "transparency": 0.9195, "diffusion": 0.6318, "longevity": 0.3056},
+        "stage_shares": {"top": 0.4974, "heart": 0.4432, "base": 0.0594},
+        "primary": [{"block_id": "SB-CA-01", "share": 0.4055}, {"block_id": "SB-FL-01", "share": 0.3434}],
+        "metrics": {"clarity": 0.4734, "complexity": 0.8207, "continuity": 0.6124, "balance": 0.589, "confidence": 0.8552},
+        "active_relations": ["REL-001", "REL-004"],
+        "problems": ["tail_insufficient"]
+      }
+    },
+    {
+      "id": "T-007",
+      "name": "complex but clear",
+      "purpose": "A four-component, three-family formula may remain clear when one floral subject is dominant and supporting relations are coherent.",
+      "components": [
+        {"block_id": "SB-CA-01", "quantity": 1.0},
+        {"block_id": "SB-FL-01", "quantity": 4.0},
+        {"block_id": "SB-FL-02", "quantity": 1.5},
+        {"block_id": "SB-MS-01", "quantity": 1.0}
+      ],
+      "expected": {
+        "attributes": {"sweetness": 0.3218, "freshness": 0.6426, "warmth": 0.4438, "weight": 0.2946, "softness": 0.7597, "transparency": 0.7871, "diffusion": 0.5686, "longevity": 0.5053},
+        "stage_shares": {"top": 0.2051, "heart": 0.5927, "base": 0.2022},
+        "primary": [{"block_id": "SB-FL-01", "share": 0.4804}, {"block_id": "SB-FL-02", "share": 0.22}],
+        "metrics": {"clarity": 0.7747, "complexity": 0.7275, "continuity": 0.4681, "balance": 0.8034, "confidence": 0.8272},
+        "active_relations": ["REL-001", "REL-005"],
+        "problems": []
+      }
+    },
+    {
+      "id": "T-008",
+      "name": "simple but ambiguous",
+      "purpose": "Two similarly strong but conflicting materials can be structurally simple and still produce low clarity.",
+      "components": [
+        {"block_id": "SB-GH-01", "quantity": 5.0},
+        {"block_id": "SB-GO-01", "quantity": 5.0}
+      ],
+      "expected": {
+        "attributes": {"sweetness": 0.5039, "freshness": 0.453, "warmth": 0.5243, "weight": 0.4904, "softness": 0.5948, "transparency": 0.3809, "diffusion": 0.5487, "longevity": 0.6026},
+        "stage_shares": {"top": 0.2878, "heart": 0.2861, "base": 0.4261},
+        "primary": [{"block_id": "SB-GO-01", "share": 0.5217}, {"block_id": "SB-GH-01", "share": 0.4783}],
+        "metrics": {"clarity": 0.4365, "complexity": 0.8192, "continuity": 0.4194, "balance": 0.8813, "confidence": 0.8987},
+        "active_relations": ["REL-024"],
+        "problems": ["pair_conflict"]
+      }
+    },
+    {
+      "id": "T-009",
+      "name": "undo restores exact analysis",
+      "purpose": "Undoing a committed edit must restore the canonical formula and analysis result byte-for-byte after rounding.",
+      "operation_sequence": [
+        {"command": "component.add", "block_id": "SB-CA-01", "quantity": 4.0},
+        {"command": "component.add", "block_id": "SB-FL-01", "quantity": 6.0},
+        {"command": "analysis.request", "capture_as": "baseline"},
+        {"command": "component.add", "block_id": "SB-GO-02", "quantity": 3.0},
+        {"command": "operation.undo"},
+        {"command": "analysis.request", "capture_as": "restored"}
+      ],
+      "assertions": [
+        {"type": "deep_equal", "left": "baseline.canonical_numeric_output", "right": "restored.canonical_numeric_output"},
+        {"type": "equal", "left": "restored.formula_hash", "right": "baseline.formula_hash"},
+        {"type": "operation_log_contains", "operation": "undo_operation"}
+      ]
+    },
+    {
+      "id": "T-010",
+      "name": "replace removes old contribution",
+      "purpose": "Replacing transparent white flower with dewy rose must remove all old-block contribution and activate only relations valid for the new block.",
+      "initial_components": [
+        {"block_id": "SB-CA-01", "quantity": 4.0},
+        {"block_id": "SB-FL-01", "quantity": 4.0},
+        {"block_id": "SB-MS-01", "quantity": 2.0}
+      ],
+      "operation": {"command": "component.replace", "from_block_id": "SB-FL-01", "to_block_id": "SB-FL-02", "preserve_quantity": true},
+      "expected_before": {
+        "attributes": {"sweetness": 0.2538, "freshness": 0.7449, "warmth": 0.4239, "weight": 0.2604, "softness": 0.6628, "transparency": 0.8394, "diffusion": 0.5953, "longevity": 0.4338},
+        "active_relations": ["REL-001"]
+      },
+      "expected_after": {
+        "attributes": {"sweetness": 0.3033, "freshness": 0.6585, "warmth": 0.4087, "weight": 0.2847, "softness": 0.684, "transparency": 0.7233, "diffusion": 0.587, "longevity": 0.5005},
+        "active_relations": ["REL-005"],
+        "absent_component_ids": ["SB-FL-01"]
+      }
+    },
+    {
+      "id": "T-011",
+      "name": "cross-scene consistency",
+      "purpose": "Scene language must not change the core formula or numeric prediction.",
+      "components": [
+        {"block_id": "SB-CA-03", "quantity": 2.0},
+        {"block_id": "SB-GH-03", "quantity": 3.0},
+        {"block_id": "SB-WE-01", "quantity": 3.0},
+        {"block_id": "SB-MS-01", "quantity": 2.0}
+      ],
+      "scenes": ["SCENE-LAB-001", "SCENE-ALCHEMY-001"],
+      "assertions": [
+        {"type": "equal", "path": "formula_hash"},
+        {"type": "deep_equal", "path": "canonical_numeric_output"},
+        {"type": "not_equal", "path": "scene_feedback.presentation_key"}
+      ]
+    },
+    {
+      "id": "T-012",
+      "name": "incomplete external material lowers confidence",
+      "purpose": "A user-entered material with incomplete concentration and mapping data must not receive a high-confidence result.",
+      "components": [
+        {"block_id": "SB-FL-02", "quantity": 6.0},
+        {
+          "external_material_id": "EXT-TEST-001",
+          "quantity": 4.0,
+          "mapped_block_ids": ["SB-MS-01"],
+          "attribute_vector": {"sweetness": 0.2, "freshness": 0.3, "warmth": 0.6, "weight": 0.4, "softness": 0.85, "transparency": 0.5, "diffusion": 0.35, "longevity": 0.75},
+          "intensity": 0.7,
+          "stage_weights": {"top": 0.02, "heart": 0.18, "base": 0.8},
+          "data_quality": 0.25,
+          "mapping_quality": 0.3,
+          "missing_fields": ["dilution", "supplier", "batch"]
+        }
+      ],
+      "assertions": [
+        {"type": "less_than", "path": "confidence.score", "value": 0.55},
+        {"type": "equal", "path": "confidence.level", "value": "low"},
+        {"type": "contains", "path": "confidence.reasons", "value": "external_material_incomplete"},
+        {"type": "contains", "path": "warnings", "value": "not_platform_verified"}
+      ]
+    },
+    {
+      "id": "T-013",
+      "name": "deterministic repeated execution",
+      "purpose": "The same canonical input and versions must produce identical numeric output on every run.",
+      "components": [
+        {"block_id": "SB-CA-03", "quantity": 2.0},
+        {"block_id": "SB-GH-03", "quantity": 2.0},
+        {"block_id": "SB-FL-02", "quantity": 3.0},
+        {"block_id": "SB-MS-01", "quantity": 3.0}
+      ],
+      "repeat_count": 100,
+      "assertions": [
+        {"type": "unique_count", "path": "canonical_numeric_output_hash", "value": 1},
+        {"type": "unique_count", "path": "formula_hash", "value": 1}
+      ]
+    },
+    {
+      "id": "T-014",
+      "name": "extreme quantity ratio",
+      "purpose": "An extremely small component and a dominant component must not create NaN, infinity or unstable rounding.",
+      "components": [
+        {"block_id": "SB-CA-01", "quantity": 0.001},
+        {"block_id": "SB-GO-02", "quantity": 999.999}
+      ],
+      "expected": {
+        "attributes": {"sweetness": 0.98, "freshness": 0.04, "warmth": 0.88, "weight": 0.88, "softness": 0.52, "transparency": 0.1, "diffusion": 0.72, "longevity": 0.8},
+        "stage_shares": {"top": 0.04, "heart": 0.46, "base": 0.5},
+        "primary": [{"block_id": "SB-GO-02", "share": 1.0}, {"block_id": "SB-CA-01", "share": 0.0}],
+        "metrics": {"clarity": 0.828, "complexity": 0.1201, "continuity": 0.8, "balance": 0.56, "confidence": 0.788},
+        "problems": ["too_sweet", "too_heavy"]
+      },
+      "assertions": [
+        {"type": "all_finite", "path": "canonical_numeric_output"}
+      ]
+    },
+    {
+      "id": "T-015",
+      "name": "rule-version replay",
+      "purpose": "Historical versions must remain reproducible after a future engine or rule upgrade.",
+      "components": [
+        {"block_id": "SB-CA-01", "quantity": 4.0},
+        {"block_id": "SB-FL-01", "quantity": 6.0}
+      ],
+      "saved_versions": {
+        "engine_version": "0.1.0",
+        "block_library_version": "0.1.0",
+        "relation_library_version": "0.1.0"
+      },
+      "assertions": [
+        {"type": "deep_equal", "left": "replay_with_saved_versions.canonical_numeric_output", "right_fixture": "T-002.expected"},
+        {"type": "not_overwrite", "path": "historical_prediction_snapshot"},
+        {"type": "store_separately", "path": "analysis_with_new_versions"}
+      ]
+    }
+  ]
+}
