@@ -1,4 +1,5 @@
 using MyScent.ScentEngine.Specifications;
+using MyScent.SpecSmokeTests;
 
 try
 {
@@ -16,11 +17,26 @@ try
     Console.WriteLine($" - blocks: {specifications.Blocks.Blocks.Count}");
     Console.WriteLine($" - pair rules: {specifications.Relations.PairRules.Count}");
     Console.WriteLine($" - group rules: {specifications.Relations.GroupRules.Count}");
+
+    Console.WriteLine("Running deterministic scent regression fixtures:");
+    var failures = new ScentFixtureRegressionRunner(specifications).RunAll();
+    if (failures.Count > 0)
+    {
+        Console.Error.WriteLine("Scent regression fixtures failed:");
+        foreach (var failure in failures)
+        {
+            Console.Error.WriteLine($" - {failure}");
+        }
+
+        return 1;
+    }
+
+    Console.WriteLine("All scent regression fixtures passed.");
     return 0;
 }
 catch (Exception exception)
 {
-    Console.Error.WriteLine("Runtime specification smoke test failed.");
+    Console.Error.WriteLine("Runtime specification or scent regression test failed.");
     Console.Error.WriteLine(exception);
     return 1;
 }
