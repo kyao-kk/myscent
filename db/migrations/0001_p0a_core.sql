@@ -44,16 +44,16 @@ CREATE TABLE IF NOT EXISTS myscent_formula (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 CREATE TABLE IF NOT EXISTS myscent_formula_component_current (
-    formula_id              varchar(36)  NOT NULL,
-    component_key           varchar(128) NOT NULL,
-    block_id                varchar(64)  NULL,
-    external_material_id    varchar(64)  NULL,
+    formula_id              varchar(36)   NOT NULL,
+    component_key           varchar(128)  NOT NULL,
+    block_id                varchar(64)   NULL,
+    external_material_id    varchar(64)   NULL,
     relative_quantity       decimal(18,6) NOT NULL,
-    stage_role_override     varchar(32)  NULL,
-    added_order             int          NOT NULL,
-    source_type             varchar(32)  NOT NULL DEFAULT 'builtin',
-    created_at              datetime(6)  NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
-    updated_at              datetime(6)  NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    stage_role_override     varchar(32)   NULL,
+    added_order             int           NOT NULL,
+    source_type             varchar(32)   NOT NULL DEFAULT 'builtin',
+    created_at              datetime(6)   NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    updated_at              datetime(6)   NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
     PRIMARY KEY (formula_id, component_key),
     KEY ix_component_block (block_id),
     CONSTRAINT fk_component_formula
@@ -72,7 +72,9 @@ CREATE TABLE IF NOT EXISTS myscent_formula_event (
     formula_id                  varchar(36)  NOT NULL,
     revision                    bigint       NOT NULL,
     event_type                  varchar(64)  NOT NULL,
-    command_id                  char(36)     NOT NULL,
+    -- formula_created currently has Guid.Empty in the domain and is persisted as NULL.
+    -- MySQL unique indexes permit multiple NULL values while still protecting real command IDs.
+    command_id                  char(36)     NULL,
     actor_id                    varchar(64)  NOT NULL,
     session_id                  varchar(64)  NULL,
     scene_id                    varchar(64)  NULL,
@@ -192,7 +194,9 @@ CREATE TABLE IF NOT EXISTS myscent_spec_manifest (
     loaded_at               datetime(6)  NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
     PRIMARY KEY (spec_kind, spec_version, content_sha256),
     KEY ix_spec_active (spec_kind, is_active),
-    CONSTRAINT ck_spec_kind CHECK (spec_kind IN ('engine', 'blocks', 'relations', 'command_protocol', 'state_machine'))
+    CONSTRAINT ck_spec_kind CHECK (
+        spec_kind IN ('engine', 'blocks', 'relations', 'command_protocol', 'state_machine')
+    )
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- The migration runner must replace the placeholder checksum with the actual
