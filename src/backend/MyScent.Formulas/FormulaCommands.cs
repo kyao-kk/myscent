@@ -1,3 +1,5 @@
+using System.Globalization;
+
 namespace MyScent.Formulas;
 
 public sealed record FormulaCommandEnvelope
@@ -16,31 +18,39 @@ public sealed record FormulaCommandEnvelope
 public abstract record FormulaCommandPayload
 {
     public abstract string CommandType { get; }
+    public abstract string SemanticFingerprint { get; }
+
+    protected static string Format(double value) => value.ToString("R", CultureInfo.InvariantCulture);
 }
 
 public sealed record AddComponentCommand(string BlockId, double Quantity) : FormulaCommandPayload
 {
     public override string CommandType => "component.add";
+    public override string SemanticFingerprint => $"{CommandType}|{BlockId}|{Format(Quantity)}";
 }
 
 public sealed record IncreaseComponentCommand(string BlockId, double DeltaQuantity) : FormulaCommandPayload
 {
     public override string CommandType => "component.increase";
+    public override string SemanticFingerprint => $"{CommandType}|{BlockId}|{Format(DeltaQuantity)}";
 }
 
 public sealed record DecreaseComponentCommand(string BlockId, double DeltaQuantity) : FormulaCommandPayload
 {
     public override string CommandType => "component.decrease";
+    public override string SemanticFingerprint => $"{CommandType}|{BlockId}|{Format(DeltaQuantity)}";
 }
 
 public sealed record SetComponentQuantityCommand(string BlockId, double Quantity) : FormulaCommandPayload
 {
     public override string CommandType => "component.set_quantity";
+    public override string SemanticFingerprint => $"{CommandType}|{BlockId}|{Format(Quantity)}";
 }
 
 public sealed record RemoveComponentCommand(string BlockId) : FormulaCommandPayload
 {
     public override string CommandType => "component.remove";
+    public override string SemanticFingerprint => $"{CommandType}|{BlockId}";
 }
 
 public sealed record ReplaceComponentCommand(
@@ -50,16 +60,20 @@ public sealed record ReplaceComponentCommand(
     double? NewQuantity = null) : FormulaCommandPayload
 {
     public override string CommandType => "component.replace";
+    public override string SemanticFingerprint =>
+        $"{CommandType}|{FromBlockId}|{ToBlockId}|{PreserveQuantity}|{(NewQuantity.HasValue ? Format(NewQuantity.Value) : "null")}";
 }
 
 public sealed record UndoOperationCommand : FormulaCommandPayload
 {
     public override string CommandType => "operation.undo";
+    public override string SemanticFingerprint => CommandType;
 }
 
 public sealed record SealFormulaCommand(string Title, bool PrerequisitesSatisfied) : FormulaCommandPayload
 {
     public override string CommandType => "formula.seal";
+    public override string SemanticFingerprint => $"{CommandType}|{Title}|{PrerequisitesSatisfied}";
 }
 
 public sealed record FormulaCommandResult
