@@ -19,26 +19,39 @@ try
     Console.WriteLine($" - group rules: {specifications.Relations.GroupRules.Count}");
 
     Console.WriteLine("Running deterministic scent regression fixtures:");
-    var failures = new ScentFixtureRegressionRunner(specifications).RunAll();
-    if (failures.Count > 0)
+    var scentFailures = new ScentFixtureRegressionRunner(specifications).RunAll();
+    if (scentFailures.Count > 0)
     {
-        Console.Error.WriteLine("Scent regression fixtures failed:");
-        foreach (var failure in failures)
-        {
-            Console.Error.WriteLine($" - {failure}");
-        }
-
+        PrintFailures("Scent regression fixtures failed:", scentFailures);
         return 1;
     }
 
     Console.WriteLine("All scent regression fixtures passed.");
+    Console.WriteLine("Running formula aggregate regression tests:");
+    var formulaFailures = new FormulaAggregateRegressionRunner(specifications).RunAll();
+    if (formulaFailures.Count > 0)
+    {
+        PrintFailures("Formula aggregate regression tests failed:", formulaFailures);
+        return 1;
+    }
+
+    Console.WriteLine("All formula aggregate regression tests passed.");
     return 0;
 }
 catch (Exception exception)
 {
-    Console.Error.WriteLine("Runtime specification or scent regression test failed.");
+    Console.Error.WriteLine("Runtime specification, scent, or formula regression test failed.");
     Console.Error.WriteLine(exception);
     return 1;
+}
+
+static void PrintFailures(string heading, IReadOnlyList<string> failures)
+{
+    Console.Error.WriteLine(heading);
+    foreach (var failure in failures)
+    {
+        Console.Error.WriteLine($" - {failure}");
+    }
 }
 
 static void Require(bool condition, string message)
