@@ -43,4 +43,6 @@ app.MapGet("/api/v1/spec-manifest", (ScentSpecificationBundle specifications) =>
 
 app.Run();
 
-public partial class Program;
+public partial class Program
+{
+}
