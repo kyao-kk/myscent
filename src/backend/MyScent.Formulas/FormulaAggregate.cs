@@ -1,7 +1,6 @@
 using System.Globalization;
 using System.Security.Cryptography;
 using System.Text;
-using System.Text.Json;
 
 namespace MyScent.Formulas;
 
@@ -10,11 +9,6 @@ public sealed class FormulaAggregate
     private const double MinimumPositiveQuantity = 0.000001;
     private const double MaximumComponentQuantity = 1000000.0;
     private const int StoragePrecision = 6;
-
-    private static readonly JsonSerializerOptions FingerprintOptions = new(JsonSerializerDefaults.Web)
-    {
-        PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower,
-    };
 
     private readonly HashSet<string> _validBlockIds;
     private readonly Dictionary<string, double> _components = new(StringComparer.Ordinal);
@@ -39,17 +33,17 @@ public sealed class FormulaAggregate
         _validBlockIds = validBlockIds.ToHashSet(StringComparer.Ordinal);
         _versions = versions;
 
-        var hash = CalculateFormulaHash();
+        var stateHash = CalculateAggregateStateHash();
         _events.Add(new FormulaEvent
         {
-            EventId = Guid.NewGuid().ToString("N", CultureInfo.InvariantCulture),
+            EventId = NewEventId(),
             FormulaId = formulaId,
             Revision = 0,
             EventType = "formula_created",
             CommandId = Guid.Empty,
             ActorId = creatorActorId,
-            BeforeStateHash = hash,
-            AfterStateHash = hash,
+            BeforeStateHash = stateHash,
+            AfterStateHash = stateHash,
             Change = new FormulaStateChange(),
             EngineVersions = versions,
             ServerTime = createdAt,
@@ -92,12 +86,12 @@ public sealed class FormulaAggregate
                 $"Expected revision {command.ExpectedRevision}, current revision is {Revision}.");
         }
 
-        if (IsSealed && command.Payload is not UndoOperationCommand)
+        if (IsSealed)
         {
             throw Error("FORMULA_SEALED", "A sealed formula cannot be edited.");
         }
 
-        var beforeHash = CalculateFormulaHash();
+        var beforeStateHash = CalculateAggregateStateHash();
         var sealedBefore = IsSealed;
         var titleBefore = Title;
         var previousRevision = Revision;
@@ -105,8 +99,8 @@ public sealed class FormulaAggregate
 
         ApplyChange(operation.Change);
         Revision++;
-        var afterHash = CalculateFormulaHash();
-        var eventId = Guid.NewGuid().ToString("N", CultureInfo.InvariantCulture);
+        var afterStateHash = CalculateAggregateStateHash();
+        var eventId = NewEventId();
         var @event = new FormulaEvent
         {
             EventId = eventId,
@@ -115,8 +109,8 @@ public sealed class FormulaAggregate
             EventType = operation.EventType,
             CommandId = command.CommandId,
             ActorId = command.ActorId,
-            BeforeStateHash = beforeHash,
-            AfterStateHash = afterHash,
+            BeforeStateHash = beforeStateHash,
+            AfterStateHash = afterStateHash,
             Change = operation.Change,
             CompensatesEventId = operation.CompensatesEventId,
             EngineVersions = _versions,
@@ -126,7 +120,7 @@ public sealed class FormulaAggregate
 
         if (operation.IsUndo)
         {
-            // The undo entry was removed while preparing the operation.
+            _undoStack.Pop();
         }
         else if (operation.CreatesUndoEntry)
         {
@@ -148,7 +142,7 @@ public sealed class FormulaAggregate
             NewRevision = Revision,
             EventId = eventId,
             EventType = operation.EventType,
-            FormulaHash = afterHash,
+            FormulaHash = CalculateFormulaHash(),
             ComponentDelta = ToComponentDelta(operation.Change),
             UndoAvailable = UndoAvailable,
             ServerTime = serverTime,
@@ -164,7 +158,8 @@ public sealed class FormulaAggregate
         IReadOnlyList<FormulaEvent> events)
     {
         ArgumentNullException.ThrowIfNull(events);
-        if (events.Count == 0 || !string.Equals(events[0].EventType, "formula_created", StringComparison.Ordinal))
+        if (events.Count == 0
+            || !string.Equals(events[0].EventType, "formula_created", StringComparison.Ordinal))
         {
             throw new InvalidDataException("Formula replay requires a formula_created event.");
         }
@@ -186,6 +181,7 @@ public sealed class FormulaAggregate
 
             if (@event.Revision == 0)
             {
+                aggregate.ValidateCreationEvent(@event);
                 aggregate._events.Add(@event);
                 continue;
             }
@@ -195,24 +191,75 @@ public sealed class FormulaAggregate
                 throw new InvalidDataException("Formula event revisions are not contiguous.");
             }
 
-            var currentHash = aggregate.CalculateFormulaHash();
-            if (!string.Equals(currentHash, @event.BeforeStateHash, StringComparison.Ordinal))
+            var beforeHash = aggregate.CalculateAggregateStateHash();
+            if (!string.Equals(beforeHash, @event.BeforeStateHash, StringComparison.Ordinal))
             {
                 throw new InvalidDataException("Formula replay before-state hash mismatch.");
             }
 
+            var sealedBefore = aggregate.IsSealed;
+            var titleBefore = aggregate.Title;
             aggregate.ApplyChange(@event.Change);
             aggregate.Revision = @event.Revision;
-            var afterHash = aggregate.CalculateFormulaHash();
+            var afterHash = aggregate.CalculateAggregateStateHash();
             if (!string.Equals(afterHash, @event.AfterStateHash, StringComparison.Ordinal))
             {
                 throw new InvalidDataException("Formula replay after-state hash mismatch.");
             }
 
+            aggregate.RebuildUndoState(@event, sealedBefore, titleBefore);
             aggregate._events.Add(@event);
         }
 
         return aggregate;
+    }
+
+    private void ValidateCreationEvent(FormulaEvent @event)
+    {
+        if (@event.Revision != 0)
+        {
+            throw new InvalidDataException("The formula_created event must have revision zero.");
+        }
+
+        var stateHash = CalculateAggregateStateHash();
+        if (!string.Equals(@event.BeforeStateHash, stateHash, StringComparison.Ordinal)
+            || !string.Equals(@event.AfterStateHash, stateHash, StringComparison.Ordinal))
+        {
+            throw new InvalidDataException("Formula creation event state hash mismatch.");
+        }
+    }
+
+    private void RebuildUndoState(
+        FormulaEvent @event,
+        bool sealedBefore,
+        string? titleBefore)
+    {
+        if (string.Equals(@event.EventType, "operation_undone", StringComparison.Ordinal))
+        {
+            if (_undoStack.Count == 0
+                || !string.Equals(
+                    _undoStack.Peek().EventId,
+                    @event.CompensatesEventId,
+                    StringComparison.Ordinal))
+            {
+                throw new InvalidDataException("Formula replay undo stack does not match compensation event.");
+            }
+
+            _undoStack.Pop();
+            return;
+        }
+
+        if (IsUndoableEventType(@event.EventType))
+        {
+            _undoStack.Push(new UndoEntry(
+                @event.EventId,
+                @event.Change.Invert(sealedBefore, titleBefore)));
+        }
+
+        if (string.Equals(@event.EventType, "formula_sealed", StringComparison.Ordinal))
+        {
+            _undoStack.Clear();
+        }
     }
 
     private PreparedOperation PrepareOperation(FormulaCommandPayload payload)
@@ -319,7 +366,9 @@ public sealed class FormulaAggregate
         var targetQuantity = command.PreserveQuantity
             ? sourceQuantity
             : ValidateQuantity(command.NewQuantity
-                ?? throw Error("INVALID_QUANTITY", "A new quantity is required when preserve_quantity is false."));
+                ?? throw Error(
+                    "INVALID_QUANTITY",
+                    "A new quantity is required when preserve_quantity is false."));
         return PreparedOperation.Undoable(
             "component_replaced",
             new FormulaStateChange
@@ -336,7 +385,7 @@ public sealed class FormulaAggregate
             throw Error("UNDO_EMPTY", "No undoable operation remains.");
         }
 
-        var entry = _undoStack.Pop();
+        var entry = _undoStack.Peek();
         return new PreparedOperation(
             "operation_undone",
             entry.CompensatingChange,
@@ -345,7 +394,7 @@ public sealed class FormulaAggregate
             CompensatesEventId: entry.EventId);
     }
 
-    private PreparedOperation PrepareSeal(SealFormulaCommand command)
+    private static PreparedOperation PrepareSeal(SealFormulaCommand command)
     {
         if (!command.PrerequisitesSatisfied)
         {
@@ -459,7 +508,7 @@ public sealed class FormulaAggregate
         return Math.Round(value, StoragePrecision, MidpointRounding.AwayFromZero);
     }
 
-    private FormulaComponentDelta ToComponentDelta(FormulaStateChange change)
+    private static FormulaComponentDelta ToComponentDelta(FormulaStateChange change)
     {
         return new FormulaComponentDelta
         {
@@ -488,18 +537,30 @@ public sealed class FormulaAggregate
         return Hash(canonical.ToString());
     }
 
+    private string CalculateAggregateStateHash()
+    {
+        return Hash(
+            $"{CalculateFormulaHash()}|sealed:{IsSealed}|title:{Title ?? string.Empty}");
+    }
+
     private static string CalculateCommandFingerprint(FormulaCommandEnvelope command)
     {
-        var semantic = new
-        {
-            command.FormulaId,
-            command.ExpectedRevision,
-            command.ActorId,
-            command.Payload.CommandType,
-            Payload = command.Payload,
-        };
-        return Hash(JsonSerializer.Serialize(semantic, FingerprintOptions));
+        return Hash(
+            $"{command.FormulaId}|{command.ExpectedRevision}|{command.ActorId}|{command.Payload.SemanticFingerprint}");
     }
+
+    private static bool IsUndoableEventType(string eventType)
+    {
+        return eventType is
+            "component_added"
+            or "component_increased"
+            or "component_decreased"
+            or "component_quantity_set"
+            or "component_removed"
+            or "component_replaced";
+    }
+
+    private static string NewEventId() => Guid.NewGuid().ToString("N", CultureInfo.InvariantCulture);
 
     private static string Hash(string value)
     {
