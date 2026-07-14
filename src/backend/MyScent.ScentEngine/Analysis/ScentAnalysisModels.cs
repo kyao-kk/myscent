@@ -85,7 +85,27 @@ public sealed record ScentSuggestion(
     string ActionType,
     string? TargetComponentId);
 
-public sealed record ScentConfidence(
-    double Score,
-    string Level,
-    IReadOnlyList<string> Reasons);
+public sealed record ScentConfidence
+{
+    public ScentConfidence(double score, string level, IReadOnlyList<string> reasons)
+    {
+        ArgumentNullException.ThrowIfNull(level);
+        ArgumentNullException.ThrowIfNull(reasons);
+
+        Reasons = reasons;
+        if (reasons.Contains("external_material_incomplete", StringComparer.Ordinal))
+        {
+            Score = Math.Min(score, 0.54);
+            Level = "low";
+        }
+        else
+        {
+            Score = score;
+            Level = level;
+        }
+    }
+
+    public double Score { get; }
+    public string Level { get; }
+    public IReadOnlyList<string> Reasons { get; }
+}
