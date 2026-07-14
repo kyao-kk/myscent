@@ -36,11 +36,20 @@ try
     }
 
     Console.WriteLine("All formula aggregate regression tests passed.");
+    Console.WriteLine("Running formula application service regression tests:");
+    var serviceFailures = new FormulaApplicationServiceRegressionRunner(specifications).RunAll();
+    if (serviceFailures.Count > 0)
+    {
+        PrintFailures("Formula application service regression tests failed:", serviceFailures);
+        return 1;
+    }
+
+    Console.WriteLine("All formula application service regression tests passed.");
     return 0;
 }
 catch (Exception exception)
 {
-    Console.Error.WriteLine("Runtime specification, scent, or formula regression test failed.");
+    Console.Error.WriteLine("Runtime specification, scent, formula, or service regression test failed.");
     Console.Error.WriteLine(exception);
     return 1;
 }
