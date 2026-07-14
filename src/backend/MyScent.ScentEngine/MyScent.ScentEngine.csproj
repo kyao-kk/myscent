@@ -5,6 +5,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Analysis/ScentAnalysisEngine.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Include="../../../specs/scent/*.json"
           Link="specs/scent/%(Filename)%(Extension)"
           CopyToOutputDirectory="PreserveNewest"
