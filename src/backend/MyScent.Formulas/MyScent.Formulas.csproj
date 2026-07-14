@@ -2,8 +2,6 @@
   <PropertyGroup>
     <RootNamespace>MyScent.Formulas</RootNamespace>
     <AssemblyName>MyScent.Formulas</AssemblyName>
-    <!-- Aggregate command-preparation helpers intentionally remain instance members during P0-A design. -->
-    <WarningsNotAsErrors>$(WarningsNotAsErrors);CA1822</WarningsNotAsErrors>
   </PropertyGroup>
 
   <ItemGroup>
