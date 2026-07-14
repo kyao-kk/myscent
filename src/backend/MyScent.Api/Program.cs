@@ -1,9 +1,12 @@
+using MyScent.Api;
+using MyScent.Formulas;
 using MyScent.ScentEngine.Specifications;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddProblemDetails();
 builder.Services.AddSingleton(static _ => ScentSpecificationLoader.LoadDefault());
+builder.Services.AddSingleton<FormulaApplicationService>();
 
 var app = builder.Build();
 
@@ -40,6 +43,46 @@ app.MapGet("/api/v1/spec-manifest", (ScentSpecificationBundle specifications) =>
             status = specifications.Relations.Status,
         },
     }));
+
+app.MapPost("/api/v1/formulas", (
+    CreateFormulaRequest request,
+    FormulaApplicationService formulas) =>
+    FormulaApiResult.Execute(() =>
+    {
+        var formula = formulas.CreateFormula(
+            request.ActorId,
+            request.SceneId,
+            DateTimeOffset.UtcNow,
+            request.RequestedFormulaId);
+        return Results.Created($"/api/v1/formulas/{formula.FormulaId}", formula);
+    }));
+
+app.MapGet("/api/v1/formulas/{formulaId}", (
+    string formulaId,
+    FormulaApplicationService formulas) =>
+    FormulaApiResult.Execute(() => Results.Ok(formulas.GetFormula(formulaId))));
+
+app.MapPost("/api/v1/formulas/{formulaId}/commands", (
+    string formulaId,
+    FormulaCommandRequest request,
+    FormulaApplicationService formulas) =>
+    FormulaApiResult.Execute(() =>
+    {
+        var command = FormulaCommandMapper.Map(formulaId, request);
+        return Results.Ok(formulas.ExecuteCommand(command, DateTimeOffset.UtcNow));
+    }));
+
+app.MapPost("/api/v1/formulas/{formulaId}/analyses", (
+    string formulaId,
+    AnalyzeFormulaRequest request,
+    FormulaApplicationService formulas) =>
+    FormulaApiResult.Execute(() =>
+        Results.Ok(formulas.Analyze(formulaId, request.SceneId, DateTimeOffset.UtcNow))));
+
+app.MapGet("/api/v1/formulas/{formulaId}/events", (
+    string formulaId,
+    FormulaApplicationService formulas) =>
+    FormulaApiResult.Execute(() => Results.Ok(formulas.GetEvents(formulaId))));
 
 app.Run();
 
