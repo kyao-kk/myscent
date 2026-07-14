@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>MyScent.SpecSmokeTests</RootNamespace>
+    <AssemblyName>MyScent.SpecSmokeTests</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../../src/backend/MyScent.ScentEngine/MyScent.ScentEngine.csproj" />
+  </ItemGroup>
+</Project>
