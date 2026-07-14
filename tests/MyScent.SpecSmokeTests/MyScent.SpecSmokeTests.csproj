@@ -7,5 +7,6 @@
 
   <ItemGroup>
     <ProjectReference Include="../../src/backend/MyScent.ScentEngine/MyScent.ScentEngine.csproj" />
+    <ProjectReference Include="../../src/backend/MyScent.Formulas/MyScent.Formulas.csproj" />
   </ItemGroup>
 </Project>
