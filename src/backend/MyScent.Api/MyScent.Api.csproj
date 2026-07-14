@@ -6,5 +6,6 @@
 
   <ItemGroup>
     <ProjectReference Include="../MyScent.ScentEngine/MyScent.ScentEngine.csproj" />
+    <ProjectReference Include="../MyScent.Formulas/MyScent.Formulas.csproj" />
   </ItemGroup>
 </Project>
