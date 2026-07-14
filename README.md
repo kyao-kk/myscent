@@ -28,7 +28,19 @@ MyScent 是一个把制作场景、调配仪式、香味计算和现实调香逻
 4. 有经验玩家是否认可底层因果；
 5. 同一配方在不同制作场景中是否保持核心结果一致。
 
-在P0-A通过前，不优先建设完整社区、创作者商业化、真实履约和高成本视频。
+在 P0-A 通过前，不优先建设完整社区、创作者商业化、真实履约和高成本视频。
+
+## P0-A 已固定基线
+
+- 24 个香气积木参数；
+- 27 条成对关系和 5 条组规则；
+- 唯一可执行计算顺序、阈值和舍入方式；
+- 15 组固定回归夹具；
+- 配方命令、revision、幂等、撤销和事件日志协议；
+- 配方生命周期、分析新鲜度、持久化和场景表现状态机；
+- 精密实验室移动优先低保真工作台。
+
+任何数值参数变更都必须新增版本并重新执行回归测试，不能静默修改历史结果。
 
 ## 材料透明原则
 
@@ -38,22 +50,36 @@ MyScent 是一个把制作场景、调配仪式、香味计算和现实调香逻
 - 进阶玩家看到代表性材料、相对作用、阶段位置和比例；
 - 高级玩家后续按权限查看精确材料、浓度、比例和导出；
 - 供应商、批次、生产参数、熟化和打样修正默认不公开；
-- 用户可以外购材料并继续使用MyScent的计算、记录和版本能力。
+- 用户可以外购材料并继续使用 MyScent 的计算、记录和版本能力。
 
 ## 当前文档与规格
+
+### 产品文档
 
 - `docs/product/00-product-vision.md`：产品愿景与定位；
 - `docs/product/01-product-roadmap.md`：产品路线图；
 - `docs/product/02-mvp-prd-v0.1.md`：已废止旧稿；
-- `docs/product/02-mvp-prd-v0.2.md`：新版可玩调香MVP PRD；
-- `docs/product/03-mvp-review-v0.1.md`：MVP产品审查；
-- `docs/product/04-scent-blocks-v0.1.md`：24个香气积木语义规格；
+- `docs/product/02-mvp-prd-v0.2.md`：新版可玩调香 MVP PRD；
+- `docs/product/03-mvp-review-v0.1.md`：MVP 产品审查；
+- `docs/product/04-scent-blocks-v0.1.md`：24 个香气积木语义规格；
 - `docs/product/05-gameplay-reality-bridge-v0.1.md`：游戏与现实调香桥接框架；
 - `docs/product/06-material-transparency-and-fulfillment-v0.1.md`：材料透明和履约策略；
-- `docs/product/07-mvp-prd-v0.2-review-v0.1.md`：新版PRD硬审与P0-A/B/C关口；
-- `docs/product/08-scent-calculation-model-v0.1.md`：香味计算规则模型；
-- `specs/scent/scent-blocks.v0.1.json`：24个积木计算参数；
-- `specs/scent/scent-relations.v0.1.json`：互补、桥接、遮盖、冲突与组过载规则。
+- `docs/product/07-mvp-prd-v0.2-review-v0.1.md`：新版 PRD 硬审与 P0-A/B/C 关口；
+- `docs/product/08-scent-calculation-model-v0.1.md`：香味计算概念模型；
+- `docs/product/09-p0a-executable-baseline-v0.1.md`：P0-A 可执行与回归验收基线；
+- `docs/product/10-laboratory-workbench-low-fi-v0.1.md`：精密实验室低保真工作台。
+
+### 香味计算规格
+
+- `specs/scent/scent-blocks.v0.1.json`：24 个积木计算参数；
+- `specs/scent/scent-relations.v0.1.json`：互补、桥接、遮盖、冲突与组过载规则；
+- `specs/scent/scent-engine.v0.1.json`：唯一可执行计算参数与公式；
+- `specs/scent/scent-fixtures.v0.1.json`：15 组确定性回归夹具。
+
+### 工作台规格
+
+- `specs/workbench/formula-command-protocol.v0.1.json`：配方命令与事件协议；
+- `specs/workbench/workbench-state-machine.v0.1.json`：工作台并行状态机。
 
 ## 协作方式
 
@@ -61,9 +87,9 @@ MyScent 是一个把制作场景、调配仪式、香味计算和现实调香逻
 
 `Issue → Branch → Design/Development → PR → CI → Audit → Acceptance → Merge → Remote Readback`
 
-- AI可以负责分析、文档、实现、测试和审计材料；
+- AI 可以负责分析、文档、实现、测试和审计材料；
 - 影响正式范围、版本、规则或发布状态的动作需项目负责人确认；
-- 默认通过独立分支和Draft PR交付，不直接合并正式版本。
+- 默认通过独立分支和 Draft PR 交付，不直接合并正式版本。
 
 ## 当前工作项
 
