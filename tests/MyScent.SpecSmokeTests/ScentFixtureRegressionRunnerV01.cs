@@ -260,10 +260,18 @@ internal sealed class ScentFixtureRegressionRunner
         AssertStageShares(actual.Stages, expected.GetProperty("stage_shares"));
         AssertPrimary(actual.PrimaryComponents, expected.GetProperty("primary"));
         AssertMetrics(actual, expected.GetProperty("metrics"));
-        AssertStringSequence(
-            "active relations",
-            actual.ActiveRelations.Select(static relation => relation.RelationId),
-            expected.GetProperty("active_relations"));
+        if (expected.TryGetProperty("active_relations", out var activeRelations))
+        {
+            AssertStringSequence(
+                "active relations",
+                actual.ActiveRelations.Select(static relation => relation.RelationId),
+                activeRelations);
+        }
+        else
+        {
+            Require(actual.ActiveRelations.Count == 0, "Expected no active relations for omitted fixture field.");
+        }
+
         AssertStringSequence("problems", actual.Problems, expected.GetProperty("problems"));
 
         if (expected.TryGetProperty("required_suggestion_actions", out var actions))
