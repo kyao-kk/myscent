@@ -28,7 +28,8 @@ jobs:
 
           root = pathlib.Path('transport')
           payload = json.loads((root / 'blob.json').read_text(encoding='utf-8'))
-          data = base64.b64decode(payload['content'], validate=True)
+          encoded = ''.join(payload['content'].split())
+          data = base64.b64decode(encoded, validate=True)
           actual = {
               'size': len(data),
               'sha256': hashlib.sha256(data).hexdigest(),
