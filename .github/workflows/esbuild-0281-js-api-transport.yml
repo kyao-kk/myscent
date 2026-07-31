@@ -1,0 +1,77 @@
+name: esbuild-0281-js-api-transport
+
+on:
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  transport:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Decode and verify exact esbuild JS API files
+        env:
+          MAIN_BLOB_API: https://api.github.com/repos/ortenburger/liquid_copy/git/blobs/1c23302b938a1164a990027c2e376aae8afc3e5b
+          PACKAGE_BLOB_API: https://api.github.com/repos/ortenburger/liquid_copy/git/blobs/628583884bffe38c662c1806c474c22009d9bafa
+        run: |
+          set -euo pipefail
+          mkdir -p transport/esbuild/lib
+          python3 - <<'PY'
+          import base64, hashlib, json, os, pathlib, urllib.request
+
+          root = pathlib.Path('transport/esbuild')
+          items = [
+              ('lib/main.js', os.environ['MAIN_BLOB_API'], 97214,
+               '5a9bcc6af79d97762d410f5fa98aee67bcae80dcc11ebad4992bd69ccfbd3afc76df08cf21f108079ead9837be3d13a295122ce35ecf55160cecf329d36ede15',
+               '1c23302b938a1164a990027c2e376aae8afc3e5b'),
+              ('package.json', os.environ['PACKAGE_BLOB_API'], 3980,
+               '9c842a3b167e645fd02b6e92db3ad1935a4a229d5ffa3b85b9639e1b078c945fc36c3e22149dcc3dcd26617bcf5a12c8aca9b459814b396d11f4a054db67ebc0',
+               '628583884bffe38c662c1806c474c22009d9bafa'),
+          ]
+          receipt = {'status': 'verified', 'version': '0.28.1', 'files': []}
+          for rel, url, expected_size, expected_sha512, expected_blob in items:
+              req = urllib.request.Request(url, headers={
+                  'Accept': 'application/vnd.github+json',
+                  'X-GitHub-Api-Version': '2022-11-28',
+                  'User-Agent': 'esbuild-0281-js-api-transport',
+              })
+              with urllib.request.urlopen(req, timeout=30) as response:
+                  payload = json.load(response)
+              encoded = ''.join(payload['content'].split())
+              data = base64.b64decode(encoded, validate=True)
+              actual = {
+                  'path': rel,
+                  'size': len(data),
+                  'sha512': hashlib.sha512(data).hexdigest(),
+                  'gitBlobSha1': hashlib.sha1(f'blob {len(data)}\0'.encode() + data).hexdigest(),
+              }
+              expected = {
+                  'path': rel,
+                  'size': expected_size,
+                  'sha512': expected_sha512,
+                  'gitBlobSha1': expected_blob,
+              }
+              if actual != expected:
+                  raise SystemExit(f'identity mismatch: {actual!r}')
+              target = root / rel
+              target.parent.mkdir(parents=True, exist_ok=True)
+              target.write_bytes(data)
+              receipt['files'].append(actual)
+          package = json.loads((root / 'package.json').read_text(encoding='utf-8'))
+          if package.get('name') != 'esbuild' or package.get('version') != '0.28.1' or package.get('main') != 'lib/main.js':
+              raise SystemExit(f'unexpected package identity: {package!r}')
+          (root / 'receipt.json').write_text(json.dumps(receipt, indent=2) + '\n', encoding='utf-8')
+          PY
+
+      - name: Upload verified JS API artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: esbuild-0.28.1-js-api-verified
+          path: transport/esbuild
+          if-no-files-found: error
+          retention-days: 1
+          compression-level: 9
